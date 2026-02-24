@@ -1,0 +1,65 @@
+const theme = {
+  colors: {
+    primary: '#F26E22',
+    primaryLight: '#FFF0E8',
+    black: '#000000',
+    white: '#FFFFFF',
+    gray100: '#F2F2F2',
+    gray200: '#DBDBDB',
+    gray300: '#B3B3B3',
+    gray400: '#767676',
+    gray500: '#4D4D4D',
+    text: '#333333',
+    error: '#EB5757',
+    success: '#2EB48B',
+    border: '#DBDBDB',
+    background: '#F2F2F2',
+    kakao: '#FEE500',
+    google: '#FFFFFF',
+    facebook: '#1877F2',
+  },
+  fonts: {
+    family: "'Noto Sans KR', sans-serif",
+    size: {
+      xs: '10px',
+      sm: '12px',
+      base: '14px',
+      md: '16px',
+      lg: '18px',
+      xl: '20px',
+      xxl: '24px',
+    },
+    weight: {
+      regular: 400,
+      medium: 500,
+      semiBold: 600,
+      bold: 700,
+    },
+  },
+  borderRadius: {
+    sm: '4px',
+    base: '8px',
+    lg: '12px',
+    xl: '16px',
+    round: '50px',
+    circle: '50%',
+  },
+  shadows: {
+    sm: '0px 1px 4px rgba(0, 0, 0, 0.1)',
+    base: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+    lg: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+  },
+  transitions: {
+    base: '0.2s ease',
+    slow: '0.3s ease',
+  },
+  zIndex: {
+    header: 100,
+    modal: 200,
+    overlay: 150,
+    tabNav: 100,
+    toast: 300,
+  },
+};
+
+export default theme;
