@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://estapi.mandarin.weniv.co.kr';
+const BASE_URL = 'https://dev.wenivops.co.kr/services/mandarin';
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -25,11 +25,13 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url === '/user/login';
+    if (error.response?.status === 401 && !isLoginRequest) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+    console.error('[API Error]', error.config?.url, error.response?.status, error.response?.data);
     return Promise.reject(error);
   }
 );

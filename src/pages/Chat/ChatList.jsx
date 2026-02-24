@@ -126,7 +126,7 @@ const DUMMY_CHATS = [
     lastMessage: '이번에 정정 언제하맨마씀?',
     time: '2020.10.25',
     unread: true,
-    avatar: 'https://estapi.mandarin.weniv.co.kr/Ellipse.png',
+    avatar: 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
   },
   {
     id: 2,
@@ -134,7 +134,7 @@ const DUMMY_CHATS = [
     lastMessage: '깊은 어둠의 존재감, 롤스로이스 뉴 블랙 배지...',
     time: '2020.10.25',
     unread: true,
-    avatar: 'https://estapi.mandarin.weniv.co.kr/Ellipse.png',
+    avatar: 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
   },
   {
     id: 3,
@@ -142,7 +142,7 @@ const DUMMY_CHATS = [
     lastMessage: '내 차는 내가 평가한다. 오픈 이벤트에 참여 하...',
     time: '2020.10.25',
     unread: false,
-    avatar: 'https://estapi.mandarin.weniv.co.kr/Ellipse.png',
+    avatar: 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
   },
 ];
 

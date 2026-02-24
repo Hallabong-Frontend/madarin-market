@@ -180,7 +180,7 @@ const DUMMY_MESSAGES = [
     text: '옷을 인생을 그러므로 없으면 것은 이상은 곧 우리의 위하여, 뿐이다. 이상의 청춘의 뼈 따뜻한 그들의 그와 약동하다. 대고, 못할 넋는 풍부하게 씩는 인생의 인생의 힘입니다.',
     time: '12:37',
     seen: false,
-    avatar: 'https://estapi.mandarin.weniv.co.kr/Ellipse.png',
+    avatar: 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
   },
   {
     id: 2,
@@ -195,8 +195,8 @@ const DUMMY_MESSAGES = [
     text: '안녕하세요. 사진이 너무 맛있어요. 한라봉 언제 애월읍 있나요? 기다리고 기다렸어요 댕댕댕댕',
     time: '12:50',
     seen: false,
-    image: 'https://estapi.mandarin.weniv.co.kr/uploads/1608551784259.jpg',
-    avatar: 'https://estapi.mandarin.weniv.co.kr/Ellipse.png',
+    image: 'https://dev.wenivops.co.kr/services/mandarin/uploads/1608551784259.jpg',
+    avatar: 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
   },
 ];
 
@@ -233,7 +233,7 @@ const ChatRoom = () => {
               <MessageRow $isMine={msg.isMine}>
                 {!msg.isMine && (
                   <OtherAvatar
-                    src={msg.avatar || 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'}
+                    src={msg.avatar || 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'}
                     alt="상대방"
                   />
                 )}

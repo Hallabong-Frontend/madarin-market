@@ -378,7 +378,7 @@ const Profile = () => {
             <Avatar
               src={getImageUrl(profile.image)}
               alt={profile.username}
-              onError={(e) => { e.target.src = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'; }}
+              onError={(e) => { e.target.src = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'; }}
             />
 
             <StatItem onClick={() => navigate(`/profile/${accountname}/following`)}>

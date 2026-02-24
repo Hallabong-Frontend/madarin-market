@@ -243,7 +243,7 @@ const PostCreate = ({ isEdit = false }) => {
         <AuthorAvatar
           src={getImageUrl(user?.image)}
           alt={user?.username}
-          onError={(e) => { e.target.src = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'; }}
+          onError={(e) => { e.target.src = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'; }}
         />
         <TextArea
           value={content}

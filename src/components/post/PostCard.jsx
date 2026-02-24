@@ -217,7 +217,7 @@ const PostCard = ({ post, onDelete }) => {
             src={getImageUrl(post.author?.image)}
             alt={post.author?.username}
             onClick={handleGoProfile}
-            onError={(e) => { e.target.src = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'; }}
+            onError={(e) => { e.target.src = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'; }}
           />
           <UserInfo onClick={handleGoProfile}>
             <Username>{post.author?.username}</Username>

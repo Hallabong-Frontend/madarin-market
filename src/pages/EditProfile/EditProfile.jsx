@@ -110,7 +110,7 @@ const EditProfile = () => {
   const [focused, setFocused] = useState({});
   const [errors, setErrors] = useState({});
   const [accountValid, setAccountValid] = useState(true);
-  const [previewImage, setPreviewImage] = useState(getImageUrl(user?.image) || 'https://estapi.mandarin.weniv.co.kr/Ellipse.png');
+  const [previewImage, setPreviewImage] = useState(getImageUrl(user?.image) || 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png');
   const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -216,7 +216,7 @@ const EditProfile = () => {
             <Avatar
               src={previewImage}
               alt="프로필 이미지"
-              onError={(e) => { e.target.src = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'; }}
+              onError={(e) => { e.target.src = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'; }}
             />
             <AvatarEditBtn type="button" onClick={() => fileRef.current?.click()}>
               <CameraIcon />

@@ -102,13 +102,18 @@ const LoginEmail = () => {
     setIsLoading(true);
     try {
       const data = await login(form.email, form.password);
-      if (data.user?.token) {
-        authLogin(data.user.token, data.user);
+      // 새 API: flat 구조 { token, ... } / 구 API: { user: { token, ... } }
+      const token = data.token ?? data.user?.token;
+      const userData = data.token ? data : data.user;
+      if (token) {
+        authLogin(token, userData);
         navigate('/feed', { replace: true });
       } else {
+        console.error('[Login] token 없음:', data);
         setError(data.message || '로그인에 실패했습니다.');
       }
     } catch (err) {
+      console.error('[Login Failed]', err.response?.status, err.response?.data);
       setError(err.response?.data?.message || '이메일 또는 비밀번호를 확인해주세요.');
     } finally {
       setIsLoading(false);

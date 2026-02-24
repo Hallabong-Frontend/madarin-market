@@ -27,11 +27,11 @@ export const formatTimeAgo = (dateString) => {
 export const getImageUrl = (url) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
-  return `https://estapi.mandarin.weniv.co.kr/${url}`;
+  return `https://dev.wenivops.co.kr/services/mandarin/${url}`;
 };
 
 // 기본 프로필 이미지
-export const DEFAULT_PROFILE_IMAGE = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png';
+export const DEFAULT_PROFILE_IMAGE = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png';
 
 // 이미지 URL이 유효한지 확인
 export const isValidImageUrl = (url) => {
