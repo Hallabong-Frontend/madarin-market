@@ -16,7 +16,8 @@ export const AuthProvider = ({ children }) => {
     }
     try {
       const data = await getMyInfo();
-      setUser(data.user);
+      // 새 API: flat 구조 / 구 API: { user: {...} }
+      setUser(data.user ?? data);
       setIsAuthenticated(true);
     } catch {
       localStorage.removeItem('token');

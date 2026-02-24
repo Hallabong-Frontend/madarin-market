@@ -132,7 +132,7 @@ const ProfileSetup = () => {
   const [focused, setFocused] = useState({});
   const [errors, setErrors] = useState({});
   const [accountValid, setAccountValid] = useState(false);
-  const [previewImage, setPreviewImage] = useState('https://estapi.mandarin.weniv.co.kr/Ellipse.png');
+  const [previewImage, setPreviewImage] = useState('https://dev.wenivops.co.kr/services/mandarin/Ellipse.png');
   const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -210,7 +210,7 @@ const ProfileSetup = () => {
         username: form.username,
         accountname: form.accountname,
         intro: form.intro,
-        image: imageUrl || 'https://estapi.mandarin.weniv.co.kr/Ellipse.png',
+        image: imageUrl || 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
       });
 
       if (data.user?.token) {
@@ -241,7 +241,7 @@ const ProfileSetup = () => {
 
       <AvatarWrapper>
         <AvatarContainer>
-          <Avatar src={previewImage} alt="프로필 이미지" onError={(e) => { e.target.src = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'; }} />
+          <Avatar src={previewImage} alt="프로필 이미지" onError={(e) => { e.target.src = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'; }} />
           <AvatarEditBtn type="button" onClick={() => fileRef.current?.click()}>
             <CameraIcon />
           </AvatarEditBtn>

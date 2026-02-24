@@ -264,7 +264,7 @@ const PostDetail = () => {
                 src={getImageUrl(comment.author?.image)}
                 alt={comment.author?.username}
                 onClick={() => navigate(`/profile/${comment.author?.accountname}`)}
-                onError={(e) => { e.target.src = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'; }}
+                onError={(e) => { e.target.src = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'; }}
               />
               <CommentContent>
                 <CommentMeta>
@@ -285,7 +285,7 @@ const PostDetail = () => {
         <CommentAvatar2
           src={getImageUrl(user?.image)}
           alt={user?.username}
-          onError={(e) => { e.target.src = 'https://estapi.mandarin.weniv.co.kr/Ellipse.png'; }}
+          onError={(e) => { e.target.src = 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png'; }}
         />
         <CommentTextInput
           value={commentText}
