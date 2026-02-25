@@ -6,11 +6,14 @@ import { uploadImage } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { getImageUrl, DEFAULT_PROFILE_IMAGE } from '../../utils/format';
 import { useEffect } from 'react';
+import ImageUploadIcon from '../../assets/images/image_upload.svg';
+import AlertModal from '../../components/common/AlertModal';
 
 const Wrapper = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.white};
   padding-bottom: 80px;
+  overflow-x: hidden;
 `;
 
 const PostHeader = styled.header`
@@ -35,14 +38,16 @@ const BackButton = styled.button`
 `;
 
 const UploadButton = styled.button`
-  background-color: ${({ disabled, theme }) => disabled ? theme.colors.gray200 : theme.colors.primary};
+  background-color: ${({ disabled, theme }) => (disabled ? theme.colors.gray200 : theme.colors.primary)};
   color: ${({ theme }) => theme.colors.white};
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
   padding: 6px 16px;
   border-radius: ${({ theme }) => theme.borderRadius.round};
   transition: ${({ theme }) => theme.transitions.base};
-  &:disabled { pointer-events: none; }
+  &:disabled {
+    pointer-events: none;
+  }
 `;
 
 const Content = styled.div`
@@ -62,30 +67,40 @@ const AuthorAvatar = styled.img`
 
 const TextArea = styled.textarea`
   flex: 1;
-  min-height: 120px;
+  margin-top: 12px;
   font-size: ${({ theme }) => theme.fonts.size.base};
   color: ${({ theme }) => theme.colors.black};
   resize: none;
   line-height: 1.6;
   border: none;
   outline: none;
+  max-height: 40vh;
+  overflow-y: auto;
 
-  &::placeholder { color: ${({ theme }) => theme.colors.gray300}; }
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.gray300};
+  }
 `;
 
 const ImagePreviews = styled.div`
   display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
-  padding: 0 16px 16px 68px;
+  padding: 0 16px 16px 60px;
   overflow-x: auto;
-  &::-webkit-scrollbar { display: none; }
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  box-sizing: border-box;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const ImagePreviewItem = styled.div`
   position: relative;
   flex-shrink: 0;
-  width: 100px;
-  height: 100px;
+  width: 300px;
+  height: 200px;
 `;
 
 const PreviewImage = styled.img`
@@ -127,14 +142,7 @@ const FloatingCameraBtn = styled.button`
 
 const BackIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M15 18L9 12L15 6" stroke="#767676" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const CameraIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="12" cy="13" r="4" stroke="white" strokeWidth="2"/>
+    <path d="M15 18L9 12L15 6" stroke="#767676" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -145,10 +153,20 @@ const PostCreate = ({ isEdit = false }) => {
   const { postId } = useParams();
   const { user } = useAuth();
   const fileRef = useRef(null);
+  const textareaRef = useRef(null);
 
   const [content, setContent] = useState('');
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [removeTargetIndex, setRemoveTargetIndex] = useState(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  }, [content]);
 
   useEffect(() => {
     if (isEdit && postId) {
@@ -158,11 +176,14 @@ const PostCreate = ({ isEdit = false }) => {
           const post = data.post;
           setContent(post.content);
           if (post.image) {
-            const imgUrls = post.image.split(',').filter(Boolean).map((img) => ({
-              url: getImageUrl(img.trim()),
-              rawUrl: img.trim(),
-              isNew: false,
-            }));
+            const imgUrls = post.image
+              .split(',')
+              .filter(Boolean)
+              .map((img) => ({
+                url: getImageUrl(img.trim()),
+                rawUrl: img.trim(),
+                isNew: false,
+              }));
             setImages(imgUrls);
           }
         } catch (err) {
@@ -175,6 +196,10 @@ const PostCreate = ({ isEdit = false }) => {
 
   const isActive = content.trim() || images.length > 0;
 
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+  };
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const remaining = MAX_IMAGES - images.length;
@@ -183,10 +208,7 @@ const PostCreate = ({ isEdit = false }) => {
     validFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImages((prev) => [
-          ...prev,
-          { url: reader.result, file, isNew: true },
-        ]);
+        setImages((prev) => [...prev, { url: reader.result, file, isNew: true }]);
       };
       reader.readAsDataURL(file);
     });
@@ -194,7 +216,12 @@ const PostCreate = ({ isEdit = false }) => {
   };
 
   const handleRemoveImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+    setRemoveTargetIndex(index);
+  };
+
+  const confirmRemoveImage = () => {
+    setImages((prev) => prev.filter((_, i) => i !== removeTargetIndex));
+    setRemoveTargetIndex(null);
   };
 
   const handleUpload = async () => {
@@ -206,6 +233,7 @@ const PostCreate = ({ isEdit = false }) => {
       for (const img of images) {
         if (img.isNew && img.file) {
           const data = await uploadImage(img.file);
+          console.log(data);
           imageUrls.push(data.filename);
         } else if (img.rawUrl) {
           imageUrls.push(img.rawUrl);
@@ -213,6 +241,7 @@ const PostCreate = ({ isEdit = false }) => {
       }
 
       const imageString = imageUrls.join(',');
+      console.log(imageUrls);
 
       if (isEdit) {
         await updatePost(postId, content, imageString);
@@ -243,11 +272,14 @@ const PostCreate = ({ isEdit = false }) => {
         <AuthorAvatar
           src={getImageUrl(user?.image)}
           alt={user?.username}
-          onError={(e) => { e.target.src = DEFAULT_PROFILE_IMAGE; }}
+          onError={(e) => {
+            e.target.src = DEFAULT_PROFILE_IMAGE;
+          }}
         />
         <TextArea
+          ref={textareaRef}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           placeholder="게시글을 작성해주세요..."
           autoFocus
         />
@@ -260,7 +292,9 @@ const PostCreate = ({ isEdit = false }) => {
               <PreviewImage
                 src={img.url}
                 alt={`이미지 ${i + 1}`}
-                onError={(e) => { e.target.style.display = 'none'; }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
               />
               <RemoveImageBtn onClick={() => handleRemoveImage(i)}>✕</RemoveImageBtn>
             </ImagePreviewItem>
@@ -279,9 +313,19 @@ const PostCreate = ({ isEdit = false }) => {
 
       {images.length < MAX_IMAGES && (
         <FloatingCameraBtn onClick={() => fileRef.current?.click()}>
-          <CameraIcon />
+          <img src={ImageUploadIcon} alt="이미지 업로드" width="28" height="28" />
         </FloatingCameraBtn>
       )}
+
+      <AlertModal
+        isOpen={removeTargetIndex !== null}
+        title="사진 삭제"
+        description="사진을 삭제하시겠습니까?"
+        confirmText="삭제"
+        onCancel={() => setRemoveTargetIndex(null)}
+        onConfirm={confirmRemoveImage}
+        danger
+      />
     </Wrapper>
   );
 };
