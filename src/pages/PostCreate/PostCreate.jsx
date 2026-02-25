@@ -73,7 +73,8 @@ const TextArea = styled.textarea`
   line-height: 1.6;
   border: none;
   outline: none;
-  overflow: hidden;
+  max-height: 40vh;
+  overflow-y: auto;
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.gray300};
