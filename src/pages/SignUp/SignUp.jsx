@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { checkEmailValid } from '../../api/auth';
-import { validateEmail } from '../../utils/format';
+import { validateEmail, validatePassword } from '../../utils/format';
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -84,7 +84,7 @@ const SignUp = () => {
     if (!form.email) return;
 
     if (!validateEmail(form.email)) {
-      setErrors((prev) => ({ ...prev, email: '이메일 형식이 올바르지 않습니다.' }));
+      setErrors((prev) => ({ ...prev, email: '*이메일 형식이 올바르지 않습니다.' }));
       return;
     }
 
@@ -97,7 +97,7 @@ const SignUp = () => {
         setErrors((prev) => ({ ...prev, email: data.message }));
       }
     } catch (err) {
-      setErrors((prev) => ({ ...prev, email: err.response?.data?.message || '이미 사용 중인 이메일입니다.' }));
+      setErrors((prev) => ({ ...prev, email: err.response?.data?.message || '*이미 가입된 이메일 주소입니다.' }));
     } finally {
       setIsChecking(false);
     }
@@ -106,8 +106,8 @@ const SignUp = () => {
   const handlePasswordBlur = () => {
     setFocused((prev) => ({ ...prev, password: false }));
     if (!form.password) return;
-    if (form.password.length < 6) {
-      setErrors((prev) => ({ ...prev, password: '비밀번호는 6자 이상이어야 합니다.' }));
+    if (!validatePassword(form.password)) {
+      setErrors((prev) => ({ ...prev, password: '*비밀번호는 6자 이상이어야 합니다.' }));
     } else {
       setErrors((prev) => ({ ...prev, password: '' }));
     }
@@ -134,7 +134,7 @@ const SignUp = () => {
             onBlur={handleEmailBlur}
             $focused={focused.email}
             $error={!!errors.email}
-            placeholder="이메일을 입력하세요"
+            placeholder="이메일 주소를 입력해 주세요."
           />
           {errors.email && <ErrorText>{errors.email}</ErrorText>}
         </Field>
@@ -149,7 +149,7 @@ const SignUp = () => {
             onBlur={handlePasswordBlur}
             $focused={focused.password}
             $error={!!errors.password}
-            placeholder="비밀번호를 입력하세요 (6자 이상)"
+            placeholder="비밀번호를 설정해 주세요."
           />
           {errors.password && <ErrorText>{errors.password}</ErrorText>}
         </Field>

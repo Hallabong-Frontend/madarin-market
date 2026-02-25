@@ -52,3 +52,8 @@ export const validateEmail = (value) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(value);
 };
+
+// 비밀번호 유효성 검사 (6자 이상)
+export const validatePassword = (value) => {
+  return value.length >= 6;
+};
