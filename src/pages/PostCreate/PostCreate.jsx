@@ -6,7 +6,7 @@ import { uploadImage } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { getImageUrl, DEFAULT_PROFILE_IMAGE } from '../../utils/format';
 import { useEffect } from 'react';
-import ImageUploadIcon from '../../assets/image_upload.svg';
+import ImageUploadIcon from '../../assets/images/image_upload.svg';
 import AlertModal from '../../components/common/AlertModal';
 
 const Wrapper = styled.div`
