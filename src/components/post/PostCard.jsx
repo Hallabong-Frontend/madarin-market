@@ -7,8 +7,8 @@ import { getImageUrl, formatDate, DEFAULT_PROFILE_IMAGE } from '../../utils/form
 import BottomModal from '../common/BottomModal';
 import AlertModal from '../common/AlertModal';
 import HeartIconSvg from '../../assets/icons/icon-heart.svg?react';
-import CommentIconSvg from '../../assets/icons/icon-message-circle.svg';
-import MoreDotsIconSvg from '../../assets/icons/s-icon-more-vertical.svg';
+import CommentIconSvg from '../../assets/icons/icon-message-circle.svg?react';
+import MoreDotsIconSvg from '../../assets/icons/s-icon-more-vertical.svg?react';
 
 const Card = styled.article`
   padding: 16px;
@@ -113,15 +113,14 @@ const HeartIcon = styled(HeartIconSvg)`
   width: 20px;
   height: 20px;
   path {
-    /* liked 상태에 따라 테두리와 내부 채우기 색상을 변경합니다 */
-    stroke: ${({ liked }) => (liked ? 'red' : '#767676')}; 
-    fill: ${({ liked }) => (liked ? 'red' : 'none')};
+    stroke: ${({ $liked }) => ($liked ? 'red' : '#767676')}; 
+    fill: ${({ $liked }) => ($liked ? 'red' : 'none')};
   }
 `;
 
-const CommentIcon = () => <img src={CommentIconSvg} alt="" width="20" height="20" />;
+const CommentIcon = () => <CommentIconSvg width="20" height="20" />;
 
-const MoreDots = () => <img src={MoreDotsIconSvg} alt="" width="18" height="18" />;
+const MoreDots = () => <MoreDotsIconSvg width="18" height="18" />;
 
 const TimeText = styled.span`
   display: block;
@@ -250,7 +249,7 @@ const PostCard = ({ post, onDelete }) => {
 
         <ActionBar>
           <ActionButton onClick={handleLike}>
-            <HeartIcon liked={liked} />
+            <HeartIcon $liked={liked} />
             {likeCount > 0 && <span>{likeCount}</span>}
           </ActionButton>
           <ActionButton onClick={() => navigate(`/post/${post.id}`)}>

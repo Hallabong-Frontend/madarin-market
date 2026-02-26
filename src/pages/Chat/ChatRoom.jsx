@@ -4,6 +4,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import styled from 'styled-components';
 import BottomModal from '../../components/common/BottomModal';
 import Header from '../../components/common/Header';
+import ImageIcon from '../../assets/icons/icon-image.svg?react';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
 import {
@@ -92,8 +93,10 @@ const InputArea = styled.div`
 `;
 
 const ImageInputBtn = styled.button`
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  background-color: ${({ theme }) => theme.colors.gray200};
+  border-radius: ${({ theme }) => theme.borderRadius.round};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,20 +122,6 @@ const SendButton = styled.button`
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
   color: ${({ disabled, theme }) => (disabled ? theme.colors.gray300 : theme.colors.primary)};
 `;
-
-const ImageIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="3" width="18" height="18" rx="3" stroke="#767676" strokeWidth="2" />
-    <circle cx="8.5" cy="8.5" r="1.5" stroke="#767676" strokeWidth="1.5" />
-    <path
-      d="M21 15L16 10L5 21"
-      stroke="#767676"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 // Firestore Timestamp → "HH:MM" 포맷
 const formatMsgTime = (timestamp) => {
@@ -257,7 +246,7 @@ const ChatRoom = () => {
 
       <InputArea>
         <ImageInputBtn onClick={() => fileRef.current?.click()} disabled={isSending}>
-          <ImageIcon />
+          <ImageIcon width="22" height="22" />
         </ImageInputBtn>
         <input
           ref={fileRef}

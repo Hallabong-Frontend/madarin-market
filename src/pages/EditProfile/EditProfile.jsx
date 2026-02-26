@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { validateAccountname, getImageUrl } from '../../utils/format';
 import Header from '../../components/common/Header';
 import AuthInput from '../../components/common/AuthInput';
-import ImageIconSvg from '../../assets/icons/icon-image.svg';
+import ImageIconSvg from '../../assets/icons/icon-image.svg?react';
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -68,7 +68,7 @@ const SuccessText = styled.p`
   color: ${({ theme }) => theme.colors.success};
 `;
 
-const ImageIcon = () => <img src={ImageIconSvg} alt="" width="18" height="18" />;
+const ImageIcon = () => <ImageIconSvg width="18" height="18" />;
 
 const EditProfile = () => {
   const navigate = useNavigate();

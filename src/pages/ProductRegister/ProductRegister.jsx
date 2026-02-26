@@ -5,7 +5,7 @@ import { createProduct, updateProduct, getProduct } from '../../api/product';
 import { uploadImage } from '../../api/auth';
 import { generateProductInfo, parseProductInfo } from '../../api/ai';
 import { getImageUrl, formatPrice, parsePrice } from '../../utils/format';
-import UploadIconSvg from '../../assets/icons/icon-upload.svg';
+import UploadIconSvg from '../../assets/icons/icon-upload.svg?react';
 import Header from '../../components/common/Header';
 import AlertModal from '../../components/common/AlertModal';
 import AuthInput from '../../components/common/AuthInput';
@@ -118,7 +118,7 @@ const AiDescLabel = styled.p`
   margin-bottom: 4px;
 `;
 
-const UploadIcon = () => <img src={UploadIconSvg} alt="" width="32" height="32" />;
+const UploadIcon = () => <UploadIconSvg width="32" height="32" />;
 
 const AI_DESC_SEPARATOR = '||AI_DESC||';
 
