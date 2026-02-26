@@ -1,15 +1,15 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import SubmitButton from './SubmitButton';
-import BackIconSvg from '../../assets/icons/icon-arrow-left.svg';
-import MoreIconSvg from '../../assets/icons/icon-more-vertical.svg';
-import SearchIconSvg from '../../assets/icons/icon-search.svg';
+import BackIconSvg from '../../assets/icons/icon-arrow-left.svg?react';
+import MoreIconSvg from '../../assets/icons/icon-more-vertical.svg?react';
+import SearchIconSvg from '../../assets/icons/icon-search.svg?react';
 
-const BackIcon = () => <img src={BackIconSvg} alt="" width="22" height="22" />;
+const BackIcon = () => <BackIconSvg width="22" height="22" />;
 
-const MoreIcon = () => <img src={MoreIconSvg} alt="" width="24" height="24" />;
+const MoreIcon = () => <MoreIconSvg width="24" height="24" />;
 
-const SearchIcon = () => <img src={SearchIconSvg} alt="" width="24" height="24" />;
+const SearchIcon = () => <SearchIconSvg width="24" height="24" />;
 
 const HeaderWrapper = styled.header`
   position: sticky;
