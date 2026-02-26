@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { searchUser } from '../../api/user';
 import UserItem from '../../components/user/UserItem';
 import Spinner from '../../components/common/Spinner';
+import BackIconSvg from '../../assets/icons/icon-arrow-left.svg';
+import SearchIconSvg from '../../assets/icons/icon-search.svg';
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -46,8 +48,12 @@ const SearchInput = styled.input`
   background: transparent;
   font-size: ${({ theme }) => theme.fonts.size.base};
   color: ${({ theme }) => theme.colors.black};
+  border: none;
+  outline: none;
 
-  &::placeholder { color: ${({ theme }) => theme.colors.gray300}; }
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.gray300};
+  }
 `;
 
 const EmptySearch = styled.div`
@@ -65,18 +71,9 @@ const EmptyText = styled.p`
 
 const ResultList = styled.ul``;
 
-const BackIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M15 18L9 12L15 6" stroke="#767676" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+const BackIcon = () => <img src={BackIconSvg} alt="" width="22" height="22" />;
 
-const SearchIconSvg = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <circle cx="11" cy="11" r="8" stroke="#767676" strokeWidth="2"/>
-    <path d="M21 21L16.65 16.65" stroke="#767676" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
+const SearchIcon = () => <img src={SearchIconSvg} alt="" width="24" height="24" />;
 
 const Search = () => {
   const navigate = useNavigate();
@@ -113,7 +110,7 @@ const Search = () => {
         setIsLoading(false);
       }
     }, 400),
-    []
+    [],
   );
 
   const handleChange = (e) => {
@@ -128,7 +125,7 @@ const Search = () => {
           <BackIcon />
         </BackButton>
         <SearchInputWrapper>
-          <SearchIconSvg />
+          <SearchIcon />
           <SearchInput
             type="text"
             value={keyword}
