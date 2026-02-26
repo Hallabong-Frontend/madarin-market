@@ -12,7 +12,6 @@ const Wrapper = styled.div`
   padding-bottom: 72px;
 `;
 
-
 const MessageList = styled.div`
   flex: 1;
   padding: 16px;
@@ -24,14 +23,14 @@ const MessageList = styled.div`
 const MessageWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${({ $isMine }) => $isMine ? 'flex-end' : 'flex-start'};
+  align-items: ${({ $isMine }) => ($isMine ? 'flex-end' : 'flex-start')};
 `;
 
 const MessageRow = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  flex-direction: ${({ $isMine }) => $isMine ? 'row-reverse' : 'row'};
+  flex-direction: ${({ $isMine }) => ($isMine ? 'row-reverse' : 'row')};
 `;
 
 const OtherAvatar = styled.img`
@@ -46,9 +45,9 @@ const OtherAvatar = styled.img`
 const Bubble = styled.div`
   max-width: 60%;
   padding: 10px 14px;
-  border-radius: ${({ $isMine }) => $isMine ? '16px 0 16px 16px' : '0 16px 16px 16px'};
-  background-color: ${({ $isMine, theme }) => $isMine ? theme.colors.primary : theme.colors.white};
-  color: ${({ $isMine, theme }) => $isMine ? theme.colors.white : theme.colors.black};
+  border-radius: ${({ $isMine }) => ($isMine ? '16px 0 16px 16px' : '0 16px 16px 16px')};
+  background-color: ${({ $isMine, theme }) => ($isMine ? theme.colors.primary : theme.colors.white)};
+  color: ${({ $isMine, theme }) => ($isMine ? theme.colors.white : theme.colors.black)};
   font-size: ${({ theme }) => theme.fonts.size.base};
   line-height: 1.5;
   word-break: break-word;
@@ -103,20 +102,22 @@ const TextInput = styled.input`
   font-size: ${({ theme }) => theme.fonts.size.base};
   color: ${({ theme }) => theme.colors.black};
 
-  &::placeholder { color: ${({ theme }) => theme.colors.gray300}; }
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.gray300};
+  }
 `;
 
 const SendButton = styled.button`
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
-  color: ${({ disabled, theme }) => disabled ? theme.colors.gray300 : theme.colors.primary};
+  color: ${({ disabled, theme }) => (disabled ? theme.colors.gray300 : theme.colors.primary)};
 `;
 
 const ImageIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="3" width="18" height="18" rx="3" stroke="#767676" strokeWidth="2"/>
-    <circle cx="8.5" cy="8.5" r="1.5" stroke="#767676" strokeWidth="1.5"/>
-    <path d="M21 15L16 10L5 21" stroke="#767676" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <rect x="3" y="3" width="18" height="18" rx="3" stroke="#767676" strokeWidth="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" stroke="#767676" strokeWidth="1.5" />
+    <path d="M21 15L16 10L5 21" stroke="#767676" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -155,19 +156,12 @@ const ChatRoom = () => {
 
   const isActive = inputText.trim();
 
-  const modalItems = [
-    { label: '채팅방 나가기', danger: true, onClick: () => navigate(-1) },
-  ];
+  const modalItems = [{ label: '채팅방 나가기', danger: true, onClick: () => navigate(-1) }];
 
   return (
     <>
       <Wrapper>
-        <Header
-          type="back-title-more"
-          title="애월읍 위니브 감귤농장"
-          titleLeft
-          onMore={() => setShowModal(true)}
-        />
+        <Header type="back-title-more" title="애월읍 위니브 감귤농장" titleLeft onMore={() => setShowModal(true)} />
 
         <MessageList>
           {DUMMY_MESSAGES.map((msg) => (
@@ -188,9 +182,7 @@ const ChatRoom = () => {
                 </div>
                 <ChatTime>{msg.time}</ChatTime>
               </MessageRow>
-              {msg.isMine && msg.seen && (
-                <SeenLabel>내 말했어요</SeenLabel>
-              )}
+              {msg.isMine && msg.seen && <SeenLabel>내 말했어요</SeenLabel>}
             </MessageWrapper>
           ))}
         </MessageList>
@@ -201,19 +193,11 @@ const ChatRoom = () => {
           <ImageIcon />
         </ImageInputBtn>
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} />
-        <TextInput
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="메시지 입력하기..."
-        />
+        <TextInput value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="메시지 입력하기..." />
         <SendButton disabled={!isActive}>전송</SendButton>
       </InputArea>
 
-      <BottomModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        items={modalItems}
-      />
+      <BottomModal isOpen={showModal} onClose={() => setShowModal(false)} items={modalItems} />
     </>
   );
 };

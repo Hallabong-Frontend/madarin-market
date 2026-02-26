@@ -19,7 +19,9 @@ const ChatItemEl = styled.div`
   cursor: pointer;
   transition: background-color 0.2s;
 
-  &:hover { background-color: ${({ theme }) => theme.colors.gray100}; }
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.gray100};
+  }
 `;
 
 const AvatarWrapper = styled.div`
@@ -108,9 +110,7 @@ const ChatList = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
 
-  const modalItems = [
-    { label: '설정', onClick: () => {} },
-  ];
+  const modalItems = [{ label: '설정', onClick: () => {} }];
 
   return (
     <>
@@ -136,11 +136,7 @@ const ChatList = () => {
 
       <BottomTabNav />
 
-      <BottomModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        items={modalItems}
-      />
+      <BottomModal isOpen={showModal} onClose={() => setShowModal(false)} items={modalItems} />
     </>
   );
 };
