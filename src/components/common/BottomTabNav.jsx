@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import HomeIcon from '../../assets/icons/icon-home.svg?react';
-import ChatIcon from '../../assets/icons/icon-message-circle-bold.svg?react';
-import PostIcon from '../../assets/icons/icon-edit.svg?react';
-import ProfileIcon from '../../assets/icons/icon-user.svg?react';
+import HomeIconSvg from '../../assets/icons/icon-home.svg?react';
+import ChatIconSvg from '../../assets/icons/icon-message-circle-bold.svg?react';
+import PostIconSvg from '../../assets/icons/icon-edit.svg?react';
+import ProfileIconSvg from '../../assets/icons/icon-user.svg?react';
 
 const NavWrapper = styled.nav`
   position: fixed;
@@ -58,10 +58,10 @@ const PostButton = styled.button`
   }
 `;
 
-const HomeIcon = () => <HomeIcon width="24" height="24" />;
-const ChatIcon = () => <ChatIcon width="24" height="24" />;
-const PostIcon = () => <PostIcon width="24" height="24" />;
-const ProfileIcon = () => <ProfileIcon width="24" height="24" />;
+const HomeIcon = () => <HomeIconSvg width="24" height="24" />;
+const ChatIcon = () => <ChatIconSvg width="24" height="24" />;
+const PostIcon = () => <PostIconSvg width="24" height="24" />;
+const ProfileIcon = () => <ProfileIconSvg width="24" height="24" />;
 
 const BottomTabNav = () => {
   const navigate = useNavigate();
