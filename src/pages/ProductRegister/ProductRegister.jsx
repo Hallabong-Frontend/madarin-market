@@ -125,6 +125,8 @@ const UploadIcon = () => (
   </svg>
 );
 
+const AI_DESC_SEPARATOR = '||AI_DESC||';
+
 const ProductRegister = ({ isEdit = false }) => {
   const navigate = useNavigate();
   const { productId } = useParams();
@@ -151,11 +153,24 @@ const ProductRegister = ({ isEdit = false }) => {
         try {
           const data = await getProduct(productId);
           const product = data.product;
+          const separatorIndex = product.itemName.indexOf(AI_DESC_SEPARATOR);
+          const parsedName =
+            separatorIndex !== -1
+              ? product.itemName.slice(0, separatorIndex)
+              : product.itemName;
+          const parsedDesc =
+            separatorIndex !== -1
+              ? product.itemName.slice(separatorIndex + AI_DESC_SEPARATOR.length)
+              : '';
           setForm({
-            itemName: product.itemName,
+            itemName: parsedName,
             price: String(product.price),
             link: product.link,
           });
+          if (parsedDesc) {
+            setAiDescription(parsedDesc);
+            setAiGenerated(true);
+          }
           setPreviewImage(getImageUrl(product.itemImage));
           setExistingImageUrl(product.itemImage);
         } catch (err) {
@@ -243,8 +258,12 @@ const ProductRegister = ({ isEdit = false }) => {
         imageUrl = imgData.filename;
       }
 
+      const combinedItemName = aiDescription
+        ? `${form.itemName}${AI_DESC_SEPARATOR}${aiDescription}`
+        : form.itemName;
+
       const productData = {
-        itemName: form.itemName,
+        itemName: combinedItemName,
         price: Number(form.price),
         link: form.link,
         itemImage: imageUrl,
