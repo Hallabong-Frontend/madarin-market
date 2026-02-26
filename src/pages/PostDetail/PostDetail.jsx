@@ -10,6 +10,7 @@ import BottomModal from '../../components/common/BottomModal';
 import AlertModal from '../../components/common/AlertModal';
 import Spinner from '../../components/common/Spinner';
 import Header from '../../components/common/Header';
+import MoreDotsIconSvg from '../../assets/icons/icon-more-vertical.svg?react';
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -124,13 +125,7 @@ const PostCommentBtn = styled.button`
   color: ${({ disabled, theme }) => (disabled ? theme.colors.gray300 : theme.colors.primary)};
 `;
 
-const MoreDots = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <circle cx="5" cy="12" r="1.5" fill="#767676" />
-    <circle cx="12" cy="12" r="1.5" fill="#767676" />
-    <circle cx="19" cy="12" r="1.5" fill="#767676" />
-  </svg>
-);
+const MoreDots = () => <MoreDotsIconSvg width="18" height="18" />;
 
 const PostDetail = () => {
   const { postId } = useParams();
