@@ -81,7 +81,31 @@ const UploadButton = styled.button`
   }
 `;
 
-// type: 'back-only' | 'back-search' | 'back-more' | 'back-title' | 'back-title-more' | 'back-title-upload' | 'back-title-save' | 'back-title-text' | 'logo-search'
+const SearchInputWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.gray100};
+  border-radius: ${({ theme }) => theme.borderRadius.round};
+  padding: 8px 12px;
+  gap: 8px;
+  margin-left: 8px;
+`;
+
+const SearchInput = styled.input`
+  flex: 1;
+  background: transparent;
+  font-size: ${({ theme }) => theme.fonts.size.base};
+  color: ${({ theme }) => theme.colors.black};
+  border: none;
+  outline: none;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.gray300};
+  }
+`;
+
+// type: 'back-only' | 'back-search' | 'back-more' | 'back-title' | 'back-title-more' | 'back-title-upload' | 'back-title-save' | 'back-title-text' | 'logo-search' | 'search-input'
 const Header = ({
   type = 'back-title',
   title = '',
@@ -98,6 +122,9 @@ const Header = ({
   onUpload,
   saveDisabled = true,
   onSave,
+  keyword = '',
+  onKeywordChange,
+  searchPlaceholder = '계정을 검색해보세요',
 }) => {
   const navigate = useNavigate();
 
@@ -113,6 +140,26 @@ const Header = ({
         <RightButton onClick={onSearch} aria-label="검색">
           <SearchIcon />
         </RightButton>
+      </HeaderWrapper>
+    );
+  }
+
+  if (type === 'search-input') {
+    return (
+      <HeaderWrapper>
+        <BackButton onClick={handleBack} aria-label="뒤로가기">
+          <BackIcon />
+        </BackButton>
+        <SearchInputWrapper>
+          <SearchIcon />
+          <SearchInput
+            type="text"
+            value={keyword}
+            onChange={onKeywordChange}
+            placeholder={searchPlaceholder}
+            autoFocus
+          />
+        </SearchInputWrapper>
       </HeaderWrapper>
     );
   }
