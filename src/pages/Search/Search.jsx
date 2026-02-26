@@ -4,56 +4,11 @@ import styled from 'styled-components';
 import { searchUser } from '../../api/user';
 import UserItem from '../../components/user/UserItem';
 import Spinner from '../../components/common/Spinner';
-import BackIconSvg from '../../assets/icons/icon-arrow-left.svg';
-import SearchIconSvg from '../../assets/icons/icon-search.svg';
+import Header from '../../components/common/Header';
 
 const Wrapper = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.white};
-`;
-
-const SearchHeader = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: ${({ theme }) => theme.zIndex.header};
-  background-color: ${({ theme }) => theme.colors.white};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const BackButton = styled.button`
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-`;
-
-const SearchInputWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border-radius: ${({ theme }) => theme.borderRadius.round};
-  padding: 8px 12px;
-  gap: 8px;
-`;
-
-const SearchInput = styled.input`
-  flex: 1;
-  background: transparent;
-  font-size: ${({ theme }) => theme.fonts.size.base};
-  color: ${({ theme }) => theme.colors.black};
-  border: none;
-  outline: none;
-
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.gray300};
-  }
 `;
 
 const EmptySearch = styled.div`
@@ -70,10 +25,6 @@ const EmptyText = styled.p`
 `;
 
 const ResultList = styled.ul``;
-
-const BackIcon = () => <img src={BackIconSvg} alt="" width="22" height="22" />;
-
-const SearchIcon = () => <img src={SearchIconSvg} alt="" width="24" height="24" />;
 
 const Search = () => {
   const navigate = useNavigate();
@@ -120,21 +71,12 @@ const Search = () => {
 
   return (
     <Wrapper>
-      <SearchHeader>
-        <BackButton onClick={() => navigate(-1)}>
-          <BackIcon />
-        </BackButton>
-        <SearchInputWrapper>
-          <SearchIcon />
-          <SearchInput
-            type="text"
-            value={keyword}
-            onChange={handleChange}
-            placeholder="계정을 검색해보세요"
-            autoFocus
-          />
-        </SearchInputWrapper>
-      </SearchHeader>
+      <Header
+        type="search-input"
+        keyword={keyword}
+        onKeywordChange={handleChange}
+        searchPlaceholder="계정을 검색해보세요"
+      />
 
       {isLoading ? (
         <Spinner />
