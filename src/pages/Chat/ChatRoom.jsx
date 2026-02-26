@@ -40,6 +40,7 @@ const MessageRow = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 8px;
+  width: 100%;
   flex-direction: ${({ $isMine }) => ($isMine ? 'row-reverse' : 'row')};
 `;
 
@@ -240,13 +241,11 @@ const ChatRoom = () => {
                       alt="상대방"
                     />
                   )}
-                  <div>
-                    {msg.imageUrl ? (
-                      <ChatImage src={msg.imageUrl} alt="채팅 이미지" />
-                    ) : (
-                      <Bubble $isMine={isMine}>{msg.text}</Bubble>
-                    )}
-                  </div>
+                  {msg.imageUrl ? (
+                    <ChatImage src={msg.imageUrl} alt="채팅 이미지" />
+                  ) : (
+                    <Bubble $isMine={isMine}>{msg.text}</Bubble>
+                  )}
                   <ChatTime>{formatMsgTime(msg.createdAt)}</ChatTime>
                 </MessageRow>
               </MessageWrapper>
