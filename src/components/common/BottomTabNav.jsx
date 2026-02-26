@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import HomeIcon from '../../assets/icons/icon-home.svg?react';
+import ChatIcon from '../../assets/icons/icon-message-circle-bold.svg?react';
+import PostIcon from '../../assets/icons/icon-edit.svg?react';
+import ProfileIcon from '../../assets/icons/icon-user.svg?react';
 
 const NavWrapper = styled.nav`
   position: fixed;
@@ -54,38 +58,10 @@ const PostButton = styled.button`
   }
 `;
 
-// 홈 아이콘
-const HomeIcon = ({ active }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H15V16H9V21H4C3.44772 21 3 20.5523 3 20V9.5Z"
-      stroke={active ? '#F26E22' : '#DBDBDB'} strokeWidth="2" strokeLinejoin="round"/>
-  </svg>
-);
-
-// 채팅 아이콘
-const ChatIcon = ({ active }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
-      stroke={active ? '#F26E22' : '#DBDBDB'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-// 게시글 작성 아이콘
-const PostIcon = ({ active }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="3" width="18" height="18" rx="3" stroke={active ? '#F26E22' : '#DBDBDB'} strokeWidth="2"/>
-    <path d="M12 8V16M8 12H16" stroke={active ? '#F26E22' : '#DBDBDB'} strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
-// 프로필 아이콘
-const ProfileIcon = ({ active }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="8" r="4" stroke={active ? '#F26E22' : '#DBDBDB'} strokeWidth="2"/>
-    <path d="M4 20C4 17.7909 7.58172 16 12 16C16.4183 16 20 17.7909 20 20"
-      stroke={active ? '#F26E22' : '#DBDBDB'} strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
+const HomeIcon = () => <HomeIcon width="24" height="24" />;
+const ChatIcon = () => <ChatIcon width="24" height="24" />;
+const PostIcon = () => <PostIcon width="24" height="24" />;
+const ProfileIcon = () => <ProfileIcon width="24" height="24" />;
 
 const BottomTabNav = () => {
   const navigate = useNavigate();
