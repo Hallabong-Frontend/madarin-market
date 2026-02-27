@@ -64,21 +64,11 @@ const MessageRow = styled.div`
   flex-direction: ${({ $isMine }) => ($isMine ? 'row-reverse' : 'row')};
 `;
 
-const OtherAvatar = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  background-color: ${({ theme }) => theme.colors.gray200};
-  flex-shrink: 0;
-`;
-
 const Bubble = styled.div`
   max-width: 60%;
   padding: 10px 14px;
   border-radius: ${({ $isMine }) => ($isMine ? '16px 0 16px 16px' : '0 16px 16px 16px')};
-  background-color: ${({ $isMine, theme }) =>
-    $isMine ? theme.colors.primary : theme.colors.white};
+  background-color: ${({ $isMine, theme }) => ($isMine ? theme.colors.primary : theme.colors.white)};
   color: ${({ $isMine, theme }) => ($isMine ? theme.colors.white : theme.colors.black)};
   font-size: ${({ theme }) => theme.fonts.size.base};
   line-height: 1.5;
@@ -467,12 +457,7 @@ const ChatRoom = () => {
 
                 <MessageWrapper $isMine={isMine}>
                   <MessageRow $isMine={isMine}>
-                    {!isMine && (
-                      <OtherAvatar
-                        src={getImageUrl(otherParticipant?.image) || DEFAULT_PROFILE_IMAGE}
-                        alt="상대방"
-                      />
-                    )}
+                    {!isMine && <Avatar src={otherParticipant?.image} alt="상대방" size="32px" />}
                     {msg.imageUrl ? (
                       <ChatImage src={msg.imageUrl} alt="채팅 이미지" />
                     ) : editingId === msg.id ? (
@@ -512,13 +497,7 @@ const ChatRoom = () => {
         <ImageInputBtn onClick={() => fileRef.current?.click()} disabled={isSending}>
           <ImageIcon width="22" height="22" />
         </ImageInputBtn>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={handleImageUpload}
-        />
+        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
         <TextInput
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
