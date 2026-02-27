@@ -86,7 +86,6 @@ const ButtonWrapper = styled.div`
 
 const ImageIcon = () => <ImageIconSvg width="18" height="18" />;
 
-
 const ProfileSetup = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -109,12 +108,18 @@ const ProfileSetup = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const isValid =
-    form.username.length >= 2 && form.username.length <= 10 && accountValid && !errors.username && !errors.accountname;
+    form.username.length >= 2 &&
+    form.username.length <= 10 &&
+    accountValid &&
+    !errors.username &&
+    !errors.accountname &&
+    !errors.general;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
     if (name === 'accountname') setAccountValid(false);
+    if (errors.general) setErrors({ ...errors, general: '' });
   };
 
   const handleUsernameBlur = () => {
@@ -163,14 +168,23 @@ const ProfileSetup = () => {
     if (!isValid || isLoading) return;
 
     setIsLoading(true);
+
+    // 1단계: 이미지 업로드
+    let imageUrl = '';
     try {
-      let imageUrl = '';
       if (imageFile) {
         const imgData = await uploadImage(imageFile);
         imageUrl = imgData.filename;
       }
+    } catch {
+      setErrors({ ...errors, general: '이미지 업로드에 실패했습니다.' });
+      setIsLoading(false);
+      return;
+    }
 
-      const data = await register({
+    // 2단계: 회원가입
+    try {
+      await register({
         email,
         password,
         username: form.username,
@@ -178,20 +192,27 @@ const ProfileSetup = () => {
         intro: form.intro,
         image: imageUrl || 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
       });
-
-      if (data.user?.token) {
-        authLogin(data.user.token, data.user);
-        navigate('/feed', { replace: true });
-      }
     } catch (err) {
       const msg = err.response?.data?.message;
       if (msg?.includes('계정')) {
         setErrors({ ...errors, accountname: msg });
-      } else if (msg?.includes('이메일')) {
-        navigate('/');
       } else {
         setErrors({ ...errors, general: msg || '회원가입에 실패했습니다.' });
       }
+      setIsLoading(false);
+      return;
+    }
+
+    // 3단계: 자동 로그인 (register 성공 후)
+    try {
+      const loginData = await login(email, password);
+      const token = loginData.token ?? loginData.user?.token;
+      const userData = loginData.token ? loginData : loginData.user;
+      authLogin(token, userData);
+      navigate('/feed', { replace: true });
+    } catch {
+      // register는 이미 완료 → 로그인 페이지로 안내
+      navigate('/login');
     } finally {
       setIsLoading(false);
     }
