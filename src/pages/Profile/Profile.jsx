@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { getUserProfile } from '../../api/user';
@@ -16,8 +16,11 @@ import Spinner from '../../components/common/Spinner';
 import Header from '../../components/common/Header';
 import ListIconSvg from '../../assets/icons/icon-post-list-on.svg?react';
 import AlbumIconSvg from '../../assets/icons/icon-post-album-on.svg?react';
+import ImageLayersIconSvg from '../../assets/icons/iccon-img-layers.svg?react';
 import ChatIcon from '../../assets/icons/icon-message-circle.svg?react';
 import ShareIcon from '../../assets/icons/icon-share.svg?react';
+
+const AI_DESC_SEPARATOR = '||AI_DESC||';
 
 const Wrapper = styled.div`
   padding-bottom: 70px;
@@ -28,7 +31,7 @@ const ProfileSection = styled.div`
   padding: 24px 16px 16px;
 `;
 
-/* 팔로워/이미지/팔로잉 가로 배치 */
+/* 팔로워/프로필 이미지/팔로잉 가로 배치 */
 const UserInfoRow = styled.div`
   display: flex;
   align-items: center;
@@ -162,7 +165,32 @@ const SectionTitle = styled.h3`
   font-size: ${({ theme }) => theme.fonts.size.base};
   font-weight: ${({ theme }) => theme.fonts.weight.bold};
   color: ${({ theme }) => theme.colors.black};
+`;
+
+const ProductSectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
+`;
+
+const ProductNavButtons = styled.div`
+  display: flex;
+  gap: 6px;
+`;
+
+const ProductNavButton = styled.button`
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background-color: ${({ theme }) => theme.colors.white};
+  color: ${({ theme }) => theme.colors.gray500};
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ProductList = styled.div`
@@ -227,17 +255,37 @@ const AlbumGrid = styled.div`
   gap: 4px;
 `;
 
+const AlbumItemWrap = styled.button`
+  position: relative;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+`;
+
 const AlbumItem = styled.img`
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
   background-color: ${({ theme }) => theme.colors.gray100};
-  cursor: pointer;
+`;
+
+const AlbumLayersBadge = styled.div`
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  line-height: 0;
+`;
+
+const AlbumLayersIcon = styled(ImageLayersIconSvg)`
+  width: 16px;
+  height: 16px;
 `;
 
 const ListIcon = styled(ListIconSvg)`
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   path {
     stroke: ${({ $viewMode }) => ($viewMode === 'list' ? '#F26E22' : '#FFC7A7')};
     fill: ${({ $viewMode }) => ($viewMode === 'list' ? '#F26E22' : '#FFC7A7')};
@@ -245,8 +293,8 @@ const ListIcon = styled(ListIconSvg)`
 `;
 
 const AlbumIcon = styled(AlbumIconSvg)`
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   path {
     stroke: ${({ $viewMode }) => ($viewMode === 'album' ? '#F26E22' : '#FFC7A7')};
     fill: ${({ $viewMode }) => ($viewMode === 'album' ? '#F26E22' : '#FFC7A7')};
@@ -271,6 +319,7 @@ const Profile = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showDeleteProductAlert, setShowDeleteProductAlert] = useState(false);
+  const productListRef = useRef(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -338,6 +387,16 @@ const Profile = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const scrollProductList = (direction) => {
+    const listEl = productListRef.current;
+    if (!listEl) return;
+    const cardWidthWithGap = 142;
+    listEl.scrollBy({
+      left: direction * cardWidthWithGap * 2,
+      behavior: 'smooth',
+    });
   };
 
   const productModalItems = [
@@ -428,8 +487,26 @@ const Profile = () => {
           <>
             <Divider />
             <Section>
+              <ProductSectionHeader>
               <SectionTitle>판매 중인 상품</SectionTitle>
-              <ProductList>
+              <ProductNavButtons>
+                <ProductNavButton
+                  type="button"
+                  aria-label="scroll products left"
+                  onClick={() => scrollProductList(-1)}
+                >
+                  {'<'}
+                </ProductNavButton>
+                <ProductNavButton
+                  type="button"
+                  aria-label="scroll products right"
+                  onClick={() => scrollProductList(1)}
+                >
+                  {'>'}
+                </ProductNavButton>
+              </ProductNavButtons>
+              </ProductSectionHeader>
+              <ProductList ref={productListRef}>
                 {products.map((product) => (
                   <ProductCard key={product.id} onClick={() => handleProductClick(product)}>
                     <ProductImage
@@ -439,7 +516,7 @@ const Profile = () => {
                         e.target.src = 'https://via.placeholder.com/130?text=No+Image';
                       }}
                     />
-                    <ProductName>{product.itemName}</ProductName>
+                    <ProductName>{product.itemName.split(AI_DESC_SEPARATOR)[0].trim()}</ProductName>
                     <ProductPrice>{formatPrice(product.price)}원</ProductPrice>
                   </ProductCard>
                 ))}
@@ -471,17 +548,27 @@ const Profile = () => {
           ) : (
             <AlbumGrid>
               {postsWithImages.map((post) => {
-                const firstImage = post.image.split(',')[0].trim();
+                const postImages = post.image
+                  .split(',')
+                  .map((img) => img.trim())
+                  .filter(Boolean);
+                const firstImage = postImages[0];
+                const hasMultipleImages = postImages.length > 1;
                 return (
-                  <AlbumItem
-                    key={post.id}
-                    src={getImageUrl(firstImage)}
-                    alt="게시글 이미지"
-                    onClick={() => navigate(`/post/${post.id}`)}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
+                  <AlbumItemWrap key={post.id} onClick={() => navigate(`/post/${post.id}`)}>
+                    <AlbumItem
+                      src={getImageUrl(firstImage)}
+                      alt="게시물 이미지"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    {hasMultipleImages && (
+                      <AlbumLayersBadge aria-label="multiple-images">
+                        <AlbumLayersIcon />
+                      </AlbumLayersBadge>
+                    )}
+                  </AlbumItemWrap>
                 );
               })}
             </AlbumGrid>
@@ -522,3 +609,5 @@ const Profile = () => {
 };
 
 export default Profile;
+
+
