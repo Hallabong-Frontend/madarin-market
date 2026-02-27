@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../context/AuthContext';
@@ -68,6 +68,7 @@ const Content = styled.p`
 `;
 
 const ImageContainer = styled.div`
+  position: relative;
   margin-bottom: 12px;
   border-radius: ${({ theme }) => theme.borderRadius.base};
   overflow: hidden;
@@ -76,9 +77,10 @@ const ImageContainer = styled.div`
 const PostImageWrapper = styled.div`
   position: relative;
   display: flex;
-  gap: 8px;
+  gap: 0;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
 
   &::-webkit-scrollbar {
     display: none;
@@ -93,6 +95,26 @@ const PostImage = styled.img`
   scroll-snap-align: start;
   border-radius: ${({ theme }) => theme.borderRadius.base};
   background-color: ${({ theme }) => theme.colors.gray100};
+`;
+
+const PaginationDots = styled.div`
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+`;
+
+const DotButton = styled.button`
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  display: block;
+  border-radius: 50%;
+  background-color: ${({ $active, theme }) => ($active ? theme.colors.primary : theme.colors.gray200)};
 `;
 
 const ActionBar = styled.div`
@@ -137,9 +159,27 @@ const PostCard = ({ post, onDelete }) => {
   const [showModal, setShowModal] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageWrapperRef = useRef(null);
+  const scrollEndTimerRef = useRef(null);
 
   const isMyPost = user?.accountname === post.author?.accountname;
-  const images = post.image ? post.image.split(',').filter(Boolean) : [];
+  const images = post.image ? post.image.split(',').filter(Boolean).slice(0, 3) : [];
+
+  useEffect(() => {
+    setCurrentImageIndex(0);
+    if (imageWrapperRef.current) {
+      imageWrapperRef.current.scrollTo({ left: 0 });
+    }
+  }, [post.id]);
+
+  useEffect(() => {
+    return () => {
+      if (scrollEndTimerRef.current) {
+        clearTimeout(scrollEndTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleLike = async () => {
     try {
@@ -207,6 +247,31 @@ const PostCard = ({ post, onDelete }) => {
     navigate(`/profile/${post.author?.accountname}`);
   };
 
+  const handleImageScroll = () => {
+    const wrapper = imageWrapperRef.current;
+    if (!wrapper) return;
+    if (scrollEndTimerRef.current) {
+      clearTimeout(scrollEndTimerRef.current);
+    }
+    scrollEndTimerRef.current = setTimeout(() => {
+      const imageWidth = wrapper.clientWidth;
+      if (!imageWidth) return;
+      const nextIndex = Math.round(wrapper.scrollLeft / imageWidth);
+      const clampedIndex = Math.max(0, Math.min(images.length - 1, nextIndex));
+      setCurrentImageIndex(clampedIndex);
+    }, 90);
+  };
+
+  const handleDotClick = (index) => {
+    const wrapper = imageWrapperRef.current;
+    if (!wrapper) return;
+    wrapper.scrollTo({
+      left: wrapper.clientWidth * index,
+      behavior: 'smooth',
+    });
+    setCurrentImageIndex(index);
+  };
+
   return (
     <>
       <Card>
@@ -232,7 +297,7 @@ const PostCard = ({ post, onDelete }) => {
 
         {images.length > 0 && (
           <ImageContainer>
-            <PostImageWrapper>
+            <PostImageWrapper ref={imageWrapperRef} onScroll={handleImageScroll}>
               {images.map((img, i) => (
                 <PostImage
                   key={i}
@@ -244,6 +309,19 @@ const PostCard = ({ post, onDelete }) => {
                 />
               ))}
             </PostImageWrapper>
+            {images.length > 1 && (
+              <PaginationDots>
+                {images.map((_, i) => (
+                  <DotButton
+                    key={i}
+                    type="button"
+                    $active={currentImageIndex === i}
+                    aria-label={`go-to-image-${i + 1}`}
+                    onClick={() => handleDotClick(i)}
+                  />
+                ))}
+              </PaginationDots>
+            )}
           </ImageContainer>
         )}
 

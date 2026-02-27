@@ -140,6 +140,7 @@ const PostCreate = ({ isEdit = false }) => {
             const imgUrls = post.image
               .split(',')
               .filter(Boolean)
+              .slice(0, MAX_IMAGES)
               .map((img) => ({
                 url: getImageUrl(img.trim()),
                 rawUrl: img.trim(),
@@ -164,6 +165,10 @@ const PostCreate = ({ isEdit = false }) => {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const remaining = MAX_IMAGES - images.length;
+    if (remaining <= 0) {
+      e.target.value = '';
+      return;
+    }
     const validFiles = files.slice(0, remaining);
 
     validFiles.forEach((file) => {
@@ -191,7 +196,7 @@ const PostCreate = ({ isEdit = false }) => {
 
     try {
       const imageUrls = [];
-      for (const img of images) {
+      for (const img of images.slice(0, MAX_IMAGES)) {
         if (img.isNew && img.file) {
           const data = await uploadImage(img.file);
           console.log(data);
