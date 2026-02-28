@@ -84,12 +84,14 @@ const RightButton = styled.button`
 `;
 
 const TextButton = styled(SubmitButton)`
-  width: auto;
+  width: 95px;
+  height: 32px;
   padding: 6px 30px;
 `;
 
 const UploadButton = styled(SubmitButton)`
-  width: auto;
+  width: 95px;
+  height: 32px;
   padding: 6px 16px;
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
