@@ -25,8 +25,8 @@ import ChatThemePanel, { BG_COLORS, BUBBLE_COLORS } from './ChatThemePanel';
 
 const Wrapper = styled.div`
   min-height: 100vh;
-  background-color: ${({ $bgColor, $bgImage }) => $bgImage ? 'transparent' : ($bgColor || '#F2F2F2')};
-  background-image: ${({ $bgImage }) => $bgImage ? `url(${$bgImage})` : 'none'};
+  background-color: ${({ $bgColor, $bgImage }) => ($bgImage ? 'transparent' : $bgColor || '#F2F2F2')};
+  background-image: ${({ $bgImage }) => ($bgImage ? `url(${$bgImage})` : 'none')};
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -86,9 +86,7 @@ const Bubble = styled.div`
   padding: 10px 14px;
   border-radius: ${({ $isMine }) => ($isMine ? '16px 0 16px 16px' : '0 16px 16px 16px')};
   background-color: ${({ $isMine, $bubbleColor, $otherBubbleColor, theme }) =>
-    $isMine
-      ? ($bubbleColor || theme.colors.primary)
-      : ($otherBubbleColor || theme.colors.white)};
+    $isMine ? $bubbleColor || theme.colors.primary : $otherBubbleColor || theme.colors.white};
   color: ${({ $isMine, $otherBubbleColor, theme }) =>
     $isMine || $otherBubbleColor ? theme.colors.white : theme.colors.black};
   font-size: ${({ theme }) => theme.fonts.size.base};
@@ -496,6 +494,7 @@ const ChatRoom = () => {
           title={otherParticipant?.username || ''}
           titleLeft
           onMore={() => setShowModal(true)}
+          alwaysVisible
         />
 
         <MessageList>
@@ -547,7 +546,12 @@ const ChatRoom = () => {
                         </EditConfirmBtn>
                       </EditWrapper>
                     ) : (
-                      <Bubble $isMine={isMine} $bubbleColor={bubbleColor} $otherBubbleColor={otherBubbleColor} onContextMenu={(e) => handleContextMenu(e, msg, isMine)}>
+                      <Bubble
+                        $isMine={isMine}
+                        $bubbleColor={bubbleColor}
+                        $otherBubbleColor={otherBubbleColor}
+                        onContextMenu={(e) => handleContextMenu(e, msg, isMine)}
+                      >
                         {msg.text}
                       </Bubble>
                     )}
