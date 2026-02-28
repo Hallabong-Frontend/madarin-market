@@ -539,7 +539,7 @@ const ChatRoom = () => {
       <Wrapper $bgColor={bgColor} $bgImage={bgImage}>
         <Header
           type="back-title-more"
-          title={otherParticipant?.username || ''}
+          title={chatInfo?.isGroupChat ? chatInfo?.groupTitle : otherParticipant?.username || ''}
           titleLeft
           onMore={() => setShowModal(true)}
           alwaysVisible
@@ -573,10 +573,10 @@ const ChatRoom = () => {
                   <MessageRow $isMine={isMine}>
                     {!isMine && (
                       <Avatar
-                        src={otherParticipant?.image}
+                        src={chatInfo?.participantInfo?.[msg.senderId]?.image || otherParticipant?.image}
                         alt="상대방"
                         size="32px"
-                        onClick={() => navigate(`/profile/${otherParticipant?.accountname}`)}
+                        onClick={() => navigate(`/profile/${msg.senderId}`)}
                       />
                     )}
                     {msg.imageUrl ? (

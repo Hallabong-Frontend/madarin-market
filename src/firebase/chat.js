@@ -47,6 +47,43 @@ export const getOrCreateChat = async (chatId, myInfo, otherInfo) => {
   }
 };
 
+// 그룹 채팅방 생성 (자동 ID 부여, 그룹 제목/이미지 설정)
+export const createGroupChat = async (myInfo, selectedUsers, groupTitle, groupImage) => {
+  const chatRef = doc(collection(db, 'chats'));
+
+  const participants = [myInfo.accountname, ...selectedUsers.map((u) => u.accountname)];
+
+  const participantInfo = {
+    [myInfo.accountname]: {
+      username: myInfo.username,
+      image: myInfo.image || '',
+    },
+  };
+
+  selectedUsers.forEach((u) => {
+    participantInfo[u.accountname] = {
+      username: u.username,
+      image: u.image || '',
+    };
+  });
+
+  await setDoc(chatRef, {
+    isGroupChat: true,
+    groupTitle: groupTitle || participants.join(', '),
+    groupImage: groupImage || '',
+    participants,
+    participantInfo,
+    lastMessage: '그룹 채팅방이 생성되었습니다.',
+    lastSenderId: myInfo.accountname,
+    lastMessageAt: serverTimestamp(),
+    readAt: {
+      [myInfo.accountname]: serverTimestamp(),
+    },
+  });
+
+  return chatRef.id;
+};
+
 // 텍스트 메시지 전송
 export const sendTextMessage = async (chatId, senderId, text) => {
   await addDoc(collection(db, 'chats', chatId, 'messages'), {
@@ -89,16 +126,11 @@ export const markAsRead = async (chatId, accountname) => {
 
 // 내 채팅 목록 실시간 구독 (lastMessageAt 내림차순)
 export const subscribeToChats = (accountname, callback) => {
-  const q = query(
-    collection(db, 'chats'),
-    where('participants', 'array-contains', accountname),
-  );
+  const q = query(collection(db, 'chats'), where('participants', 'array-contains', accountname));
   return onSnapshot(q, (snapshot) => {
     const chats = snapshot.docs
       .map((d) => ({ id: d.id, ...d.data() }))
-      .sort(
-        (a, b) => (b.lastMessageAt?.toMillis() || 0) - (a.lastMessageAt?.toMillis() || 0),
-      );
+      .sort((a, b) => (b.lastMessageAt?.toMillis() || 0) - (a.lastMessageAt?.toMillis() || 0));
     callback(chats);
   });
 };
@@ -132,10 +164,7 @@ export const saveChatTheme = async (chatId, accountname, theme) => {
 
 // 채팅방 메시지 실시간 구독 (createdAt 오름차순)
 export const subscribeToMessages = (chatId, callback) => {
-  const q = query(
-    collection(db, 'chats', chatId, 'messages'),
-    orderBy('createdAt', 'asc'),
-  );
+  const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('createdAt', 'asc'));
   return onSnapshot(q, (snapshot) => {
     callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
   });
