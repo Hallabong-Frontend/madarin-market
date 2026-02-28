@@ -168,7 +168,7 @@ const ChatList = () => {
   return (
     <>
       <Wrapper>
-        <Header type="back-more" onMore={() => setShowModal(true)} />
+        <Header type="back-more" onMore={() => setShowModal(true)} alwaysVisible />
 
         {isLoading ? (
           <Spinner padding="40vh 0" />
