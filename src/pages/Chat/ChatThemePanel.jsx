@@ -73,9 +73,9 @@ const SwatchItem = styled.div`
   align-items: center;
 `;
 
-const ChatThemePanel = ({ isOpen, onClose, bgColor, bubbleColor, onBgColorChange, onBubbleColorChange }) => {
+const ChatThemePanel = ({ isOpen, onClose, bgColor, bubbleColor, otherBubbleColor, onBgColorChange, onBubbleColorChange, onOtherBubbleColorChange }) => {
   return (
-    <FullPagePanel isOpen={isOpen} onClose={onClose} title="배경 설정">
+    <FullPagePanel isOpen={isOpen} onClose={onClose} title="테마 설정">
       <ColorSection>
         <ColorSectionTitle>배경 색상</ColorSectionTitle>
         <ColorGrid>
@@ -103,6 +103,24 @@ const ChatThemePanel = ({ isOpen, onClose, bgColor, bubbleColor, onBgColorChange
                 $selected={bubbleColor === c.value}
                 $dark
                 onClick={() => onBubbleColorChange(c.value)}
+                aria-label={c.label}
+              />
+              <SwatchLabel>{c.label}</SwatchLabel>
+            </SwatchItem>
+          ))}
+        </ColorGrid>
+      </ColorSection>
+
+      <ColorSection>
+        <ColorSectionTitle>상대방 채팅 색상</ColorSectionTitle>
+        <ColorGrid>
+          {BUBBLE_COLORS.map((c) => (
+            <SwatchItem key={c.value}>
+              <ColorSwatch
+                $color={c.value}
+                $selected={otherBubbleColor === c.value}
+                $dark
+                onClick={() => onOtherBubbleColorChange(c.value)}
                 aria-label={c.label}
               />
               <SwatchLabel>{c.label}</SwatchLabel>

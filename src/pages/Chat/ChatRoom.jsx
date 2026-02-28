@@ -80,9 +80,12 @@ const Bubble = styled.div`
   max-width: 60%;
   padding: 10px 14px;
   border-radius: ${({ $isMine }) => ($isMine ? '16px 0 16px 16px' : '0 16px 16px 16px')};
-  background-color: ${({ $isMine, $bubbleColor, theme }) =>
-    $isMine ? ($bubbleColor || theme.colors.primary) : theme.colors.white};
-  color: ${({ $isMine, theme }) => ($isMine ? theme.colors.white : theme.colors.black)};
+  background-color: ${({ $isMine, $bubbleColor, $otherBubbleColor, theme }) =>
+    $isMine
+      ? ($bubbleColor || theme.colors.primary)
+      : ($otherBubbleColor || theme.colors.white)};
+  color: ${({ $isMine, $otherBubbleColor, theme }) =>
+    $isMine || $otherBubbleColor ? theme.colors.white : theme.colors.black};
   font-size: ${({ theme }) => theme.fonts.size.base};
   line-height: 1.5;
   word-break: break-word;
@@ -261,6 +264,7 @@ const ChatRoom = () => {
   const [showBgPanel, setShowBgPanel] = useState(false);
   const [bgColor, setBgColor] = useState(BG_COLORS[0].value);
   const [bubbleColor, setBubbleColor] = useState(BUBBLE_COLORS[0].value);
+  const [otherBubbleColor, setOtherBubbleColor] = useState(null);
   const themeInitialized = useRef(false);
 
   useEffect(() => {
@@ -275,6 +279,7 @@ const ChatRoom = () => {
     const saved = chatInfo.themes?.[user.accountname];
     if (saved?.bgColor) setBgColor(saved.bgColor);
     if (saved?.bubbleColor) setBubbleColor(saved.bubbleColor);
+    if (saved?.otherBubbleColor) setOtherBubbleColor(saved.otherBubbleColor);
     themeInitialized.current = true;
   }, [chatInfo, user?.accountname]);
 
@@ -445,7 +450,7 @@ const ChatRoom = () => {
 
   const modalItems = [
     {
-      label: '배경 설정',
+      label: '테마 설정',
       onClick: () => {
         setShowModal(false);
         setShowBgPanel(true);
@@ -517,7 +522,7 @@ const ChatRoom = () => {
                         </EditConfirmBtn>
                       </EditWrapper>
                     ) : (
-                      <Bubble $isMine={isMine} $bubbleColor={bubbleColor} onContextMenu={(e) => handleContextMenu(e, msg, isMine)}>
+                      <Bubble $isMine={isMine} $bubbleColor={bubbleColor} $otherBubbleColor={otherBubbleColor} onContextMenu={(e) => handleContextMenu(e, msg, isMine)}>
                         {msg.text}
                       </Bubble>
                     )}
@@ -591,13 +596,18 @@ const ChatRoom = () => {
         onClose={() => setShowBgPanel(false)}
         bgColor={bgColor}
         bubbleColor={bubbleColor}
+        otherBubbleColor={otherBubbleColor}
         onBgColorChange={(color) => {
           setBgColor(color);
-          saveChatTheme(chatId, user.accountname, { bgColor: color, bubbleColor });
+          saveChatTheme(chatId, user.accountname, { bgColor: color, bubbleColor, otherBubbleColor });
         }}
         onBubbleColorChange={(color) => {
           setBubbleColor(color);
-          saveChatTheme(chatId, user.accountname, { bgColor, bubbleColor: color });
+          saveChatTheme(chatId, user.accountname, { bgColor, bubbleColor: color, otherBubbleColor });
+        }}
+        onOtherBubbleColorChange={(color) => {
+          setOtherBubbleColor(color);
+          saveChatTheme(chatId, user.accountname, { bgColor, bubbleColor, otherBubbleColor: color });
         }}
       />
 
