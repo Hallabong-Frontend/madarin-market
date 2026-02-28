@@ -17,16 +17,16 @@ const BackIcon = styled(BackIconSvg)`
 `;
 
 const HeartIcon = styled(HeartIconSvg)`
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   path {
-    stroke: ${({ theme }) => theme.colors.black};
+    stroke: ${({ theme }) => theme.colors.gray400};
   }
 `;
 
 const MoreIcon = () => <MoreIconSvg width="24" height="24" />;
 
-const SearchIcon = () => <SearchIconSvg width="24" height="24" />;
+const SearchIcon = ({ size = 24 }) => <SearchIconSvg width={size} height={size} />;
 
 const HeaderWrapper = styled.header`
   position: fixed;
@@ -84,12 +84,14 @@ const RightButton = styled.button`
 `;
 
 const TextButton = styled(SubmitButton)`
-  width: auto;
+  width: 95px;
+  height: 32px;
   padding: 6px 30px;
 `;
 
 const UploadButton = styled(SubmitButton)`
-  width: auto;
+  width: 95px;
+  height: 32px;
   padding: 6px 16px;
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
@@ -185,10 +187,7 @@ const Header = ({
         </HeaderWrapper>
         <HeaderSpacer />
 
-        <NotificationPanel
-          isOpen={showNotifications}
-          onClose={() => setShowNotifications(false)}
-        />
+        <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
       </>
     );
   }
@@ -201,7 +200,7 @@ const Header = ({
             <BackIcon />
           </BackButton>
           <SearchInputWrapper>
-            <SearchIcon />
+            <SearchIcon size={18} />
             <SearchInput
               type="text"
               value={keyword}
@@ -218,49 +217,49 @@ const Header = ({
 
   return (
     <>
-    <HeaderWrapper $hidden={alwaysVisible ? false : hidden}>
-      <BackButton onClick={handleBack} aria-label="뒤로가기">
-        <BackIcon />
-      </BackButton>
+      <HeaderWrapper $hidden={alwaysVisible ? false : hidden}>
+        <BackButton onClick={handleBack} aria-label="뒤로가기">
+          <BackIcon />
+        </BackButton>
 
-      {title && <Title $titleLeft={titleLeft}>{title}</Title>}
-      {!title && <div style={{ flex: 1 }} />}
+        {title && <Title $titleLeft={titleLeft}>{title}</Title>}
+        {!title && <div style={{ flex: 1 }} />}
 
-      {type === 'back-search' && (
-        <RightButton onClick={onSearch} aria-label="검색">
-          <SearchIcon />
-        </RightButton>
-      )}
-      {(type === 'back-more' || type === 'back-title-more') && (
-        <RightButton onClick={onMore} aria-label="더보기">
-          <MoreIcon />
-        </RightButton>
-      )}
-      {type === 'back-title-upload' && (
-        <UploadButton disabled={uploadDisabled} onClick={onUpload}>
-          {uploadText}
-        </UploadButton>
-      )}
-      {type === 'back-title-save' && (
-        <TextButton disabled={saveDisabled} onClick={onSave}>
-          저장
-        </TextButton>
-      )}
-      {type === 'back-title-text' && (
-        <TextButton disabled={rightDisabled} onClick={onRightText}>
-          {rightText}
-        </TextButton>
-      )}
-      {![
-        'back-search',
-        'back-more',
-        'back-title-more',
-        'back-title-upload',
-        'back-title-save',
-        'back-title-text',
-      ].includes(type) && <div style={{ width: 32 }} />}
-    </HeaderWrapper>
-    <HeaderSpacer />
+        {type === 'back-search' && (
+          <RightButton onClick={onSearch} aria-label="검색">
+            <SearchIcon />
+          </RightButton>
+        )}
+        {(type === 'back-more' || type === 'back-title-more') && (
+          <RightButton onClick={onMore} aria-label="더보기">
+            <MoreIcon />
+          </RightButton>
+        )}
+        {type === 'back-title-upload' && (
+          <UploadButton disabled={uploadDisabled} onClick={onUpload}>
+            {uploadText}
+          </UploadButton>
+        )}
+        {type === 'back-title-save' && (
+          <TextButton disabled={saveDisabled} onClick={onSave}>
+            저장
+          </TextButton>
+        )}
+        {type === 'back-title-text' && (
+          <TextButton disabled={rightDisabled} onClick={onRightText}>
+            {rightText}
+          </TextButton>
+        )}
+        {![
+          'back-search',
+          'back-more',
+          'back-title-more',
+          'back-title-upload',
+          'back-title-save',
+          'back-title-text',
+        ].includes(type) && <div style={{ width: 32 }} />}
+      </HeaderWrapper>
+      <HeaderSpacer />
     </>
   );
 };
