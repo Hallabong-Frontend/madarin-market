@@ -16,16 +16,90 @@ import {
   editMessage,
   deleteMessage,
   deleteChat,
+  saveChatTheme,
 } from '../../firebase/chat';
 import { getImageUrl, DEFAULT_PROFILE_IMAGE } from '../../utils/format';
 import Avatar from '../../components/common/Avatar';
+import FullPagePanel from '../../components/common/FullPagePanel';
+
+const BG_COLORS = [
+  { label: '기본', value: '#F2F2F2' },
+  { label: '베이지', value: '#FFF5E6' },
+  { label: '하늘', value: '#EFF6FF' },
+  { label: '민트', value: '#F0FFF4' },
+  { label: '라벤더', value: '#F5F0FF' },
+  { label: '핑크', value: '#FFF0F5' },
+];
+
+const BUBBLE_COLORS = [
+  { label: '감귤', value: '#F26E22' },
+  { label: '블루', value: '#3B82F6' },
+  { label: '그린', value: '#10B981' },
+  { label: '퍼플', value: '#8B5CF6' },
+  { label: '핑크', value: '#EC4899' },
+  { label: '레드', value: '#EF4444' },
+];
 
 const Wrapper = styled.div`
   min-height: 100vh;
-  background-color: ${({ theme }) => theme.colors.gray100};
+  background-color: ${({ $bgColor }) => $bgColor || '#F2F2F2'};
   display: flex;
   flex-direction: column;
   padding-bottom: 72px;
+`;
+
+const ColorSection = styled.div`
+  margin-bottom: 24px;
+`;
+
+const ColorSectionTitle = styled.p`
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+  font-weight: ${({ theme }) => theme.fonts.weight.medium};
+  color: ${({ theme }) => theme.colors.gray400};
+  margin: 0 0 12px;
+`;
+
+const ColorGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
+const ColorSwatch = styled.button`
+  width: 48px;
+  height: 48px;
+  border-radius: ${({ theme }) => theme.borderRadius.base};
+  background-color: ${({ $color }) => $color};
+  border: 3px solid ${({ $selected, theme }) => ($selected ? theme.colors.primary : 'transparent')};
+  box-shadow: 0 0 0 1px ${({ theme }) => theme.colors.border};
+  cursor: pointer;
+  position: relative;
+
+  &::after {
+    content: ${({ $selected }) => ($selected ? '"✓"' : '""')};
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: ${({ $dark }) => ($dark ? '#fff' : '#333')};
+    font-weight: bold;
+  }
+`;
+
+const SwatchLabel = styled.span`
+  display: block;
+  font-size: 11px;
+  color: ${({ theme }) => theme.colors.gray400};
+  text-align: center;
+  margin-top: 4px;
+`;
+
+const SwatchItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const MessageList = styled.div`
@@ -78,7 +152,8 @@ const Bubble = styled.div`
   max-width: 60%;
   padding: 10px 14px;
   border-radius: ${({ $isMine }) => ($isMine ? '16px 0 16px 16px' : '0 16px 16px 16px')};
-  background-color: ${({ $isMine, theme }) => ($isMine ? theme.colors.primary : theme.colors.white)};
+  background-color: ${({ $isMine, $bubbleColor, theme }) =>
+    $isMine ? ($bubbleColor || theme.colors.primary) : theme.colors.white};
   color: ${({ $isMine, theme }) => ($isMine ? theme.colors.white : theme.colors.black)};
   font-size: ${({ theme }) => theme.fonts.size.base};
   line-height: 1.5;
@@ -255,6 +330,10 @@ const ChatRoom = () => {
   const [showDeleteChatAlert, setShowDeleteChatAlert] = useState(false);
   const [showDeleteMsgAlert, setShowDeleteMsgAlert] = useState(false);
   const [showReportAlert, setShowReportAlert] = useState(false);
+  const [showBgPanel, setShowBgPanel] = useState(false);
+  const [bgColor, setBgColor] = useState(BG_COLORS[0].value);
+  const [bubbleColor, setBubbleColor] = useState(BUBBLE_COLORS[0].value);
+  const themeInitialized = useRef(false);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'chats', chatId), (snap) => {
@@ -262,6 +341,14 @@ const ChatRoom = () => {
     });
     return () => unsub();
   }, [chatId]);
+
+  useEffect(() => {
+    if (!chatInfo || !user?.accountname || themeInitialized.current) return;
+    const saved = chatInfo.themes?.[user.accountname];
+    if (saved?.bgColor) setBgColor(saved.bgColor);
+    if (saved?.bubbleColor) setBubbleColor(saved.bubbleColor);
+    themeInitialized.current = true;
+  }, [chatInfo, user?.accountname]);
 
   useEffect(() => {
     const unsub = subscribeToMessages(chatId, setMessages);
@@ -430,6 +517,13 @@ const ChatRoom = () => {
 
   const modalItems = [
     {
+      label: '배경 설정',
+      onClick: () => {
+        setShowModal(false);
+        setShowBgPanel(true);
+      },
+    },
+    {
       label: '채팅방 나가기',
       danger: true,
       onClick: () => setShowDeleteChatAlert(true),
@@ -438,7 +532,7 @@ const ChatRoom = () => {
 
   return (
     <>
-      <Wrapper>
+      <Wrapper $bgColor={bgColor}>
         <Header
           type="back-title-more"
           title={otherParticipant?.username || ''}
@@ -495,7 +589,7 @@ const ChatRoom = () => {
                         </EditConfirmBtn>
                       </EditWrapper>
                     ) : (
-                      <Bubble $isMine={isMine} onContextMenu={(e) => handleContextMenu(e, msg, isMine)}>
+                      <Bubble $isMine={isMine} $bubbleColor={bubbleColor} onContextMenu={(e) => handleContextMenu(e, msg, isMine)}>
                         {msg.text}
                       </Bubble>
                     )}
@@ -563,6 +657,49 @@ const ChatRoom = () => {
         onCancel={() => setShowReportAlert(false)}
         onConfirm={() => setShowReportAlert(false)}
       />
+
+      <FullPagePanel isOpen={showBgPanel} onClose={() => setShowBgPanel(false)} title="배경 설정">
+        <ColorSection>
+          <ColorSectionTitle>배경 색상</ColorSectionTitle>
+          <ColorGrid>
+            {BG_COLORS.map((c) => (
+              <SwatchItem key={c.value}>
+                <ColorSwatch
+                  $color={c.value}
+                  $selected={bgColor === c.value}
+                  onClick={() => {
+                    setBgColor(c.value);
+                    saveChatTheme(chatId, user.accountname, { bgColor: c.value, bubbleColor });
+                  }}
+                  aria-label={c.label}
+                />
+                <SwatchLabel>{c.label}</SwatchLabel>
+              </SwatchItem>
+            ))}
+          </ColorGrid>
+        </ColorSection>
+
+        <ColorSection>
+          <ColorSectionTitle>내 채팅 색상</ColorSectionTitle>
+          <ColorGrid>
+            {BUBBLE_COLORS.map((c) => (
+              <SwatchItem key={c.value}>
+                <ColorSwatch
+                  $color={c.value}
+                  $selected={bubbleColor === c.value}
+                  $dark
+                  onClick={() => {
+                    setBubbleColor(c.value);
+                    saveChatTheme(chatId, user.accountname, { bgColor, bubbleColor: c.value });
+                  }}
+                  aria-label={c.label}
+                />
+                <SwatchLabel>{c.label}</SwatchLabel>
+              </SwatchItem>
+            ))}
+          </ColorGrid>
+        </ColorSection>
+      </FullPagePanel>
 
       {contextMenu.show && (
         <ContextMenu ref={contextMenuRef} style={{ top: 0, left: 0 }} onClick={(e) => e.stopPropagation()}>
