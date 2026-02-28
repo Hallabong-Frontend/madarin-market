@@ -10,6 +10,7 @@ import { subscribeToChats, deleteChat } from '../../firebase/chat';
 import Avatar from '../../components/common/Avatar';
 import EmptyState from '../../components/common/EmptyState';
 import AlertModal from '../../components/common/AlertModal';
+import GroupChatModal from '../../components/chat/GroupChatModal';
 import PinIcon from '../../assets/icons/icon-pin.svg?react';
 import PinFilledIcon from '../../assets/icons/icon-pin-filled.svg?react';
 
@@ -66,11 +67,7 @@ const ActionBtn = styled.button`
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
   background-color: ${({ $bg, theme }) =>
-    $bg === 'error'
-      ? theme.colors.error
-      : $bg === 'primary'
-      ? theme.colors.primary
-      : theme.colors.gray400};
+    $bg === 'error' ? theme.colors.error : $bg === 'primary' ? theme.colors.primary : theme.colors.gray400};
   cursor: pointer;
 `;
 
@@ -220,6 +217,7 @@ const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showGroupChatModal, setShowGroupChatModal] = useState(false);
   const [swipedChatId, setSwipedChatId] = useState(null);
   const [pinSwipedChatId, setPinSwipedChatId] = useState(null);
   const [pendingAction, setPendingAction] = useState(null); // { type, chatId }
@@ -333,12 +331,21 @@ const ChatList = () => {
       return (b.lastMessageAt?.toMillis() || 0) - (a.lastMessageAt?.toMillis() || 0);
     });
 
-  const modalItems = [{ label: '설정', onClick: () => {} }];
+  const modalItems = [
+    {
+      label: '그룹채팅 만들기',
+      onClick: () => {
+        setShowModal(false);
+        setShowGroupChatModal(true);
+      },
+    },
+  ];
 
   const filteredChats = displayChats.filter((chat) => {
     if (!searchKeyword) return true;
-    const other = getOtherParticipant(chat);
-    return other.username?.toLowerCase().includes(searchKeyword.toLowerCase());
+    const isGroup = chat.isGroupChat;
+    const title = isGroup ? chat.groupTitle : getOtherParticipant(chat).username;
+    return title?.toLowerCase().includes(searchKeyword.toLowerCase());
   });
 
   const renderHighlight = (text) => {
@@ -384,7 +391,11 @@ const ChatList = () => {
           />
         ) : (
           filteredChats.map((chat) => {
+            const isGroup = chat.isGroupChat;
             const other = getOtherParticipant(chat);
+            const chatTitle = isGroup ? chat.groupTitle : other.username;
+            const chatImage = isGroup ? chat.groupImage : other.image;
+
             const isLeftSwiped = swipedChatId === chat.id;
             const isRightSwiped = pinSwipedChatId === chat.id;
             const isPinned = pinnedChatIds.includes(chat.id);
@@ -453,13 +464,13 @@ const ChatList = () => {
                   }}
                 >
                   <AvatarWrapper>
-                    <Avatar src={other.image} alt={other.username} />
+                    <Avatar src={chatImage} alt={chatTitle} />
                     {isUnread(chat) && <UnreadDot />}
                   </AvatarWrapper>
                   <ChatInfo>
                     <ChatTop>
                       <ChatUsernameRow>
-                        <ChatUsername>{renderHighlight(other.username)}</ChatUsername>
+                        <ChatUsername>{renderHighlight(chatTitle)}</ChatUsername>
                         {isPinned && <PinIconInline />}
                       </ChatUsernameRow>
                       <ChatTime>{formatChatTime(chat.lastMessageAt)}</ChatTime>
@@ -486,6 +497,7 @@ const ChatList = () => {
         onCancel={() => setPendingAction(null)}
         onConfirm={handleAlertConfirm}
       />
+      <GroupChatModal isOpen={showGroupChatModal} onClose={() => setShowGroupChatModal(false)} />
     </>
   );
 };
