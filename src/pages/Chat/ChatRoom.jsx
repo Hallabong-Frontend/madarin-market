@@ -533,6 +533,15 @@ const ChatRoom = () => {
     chatInfo?.nicknames?.[user?.accountname]?.[otherParticipant?.accountname] || otherParticipant?.username || ''
   );
 
+  const handleTitleClick = () => {
+    if (chatInfo?.isGroupChat) {
+      setShowMembersPanel(true);
+      return;
+    }
+    if (!otherParticipant?.accountname) return;
+    navigate(`/profile/${otherParticipant.accountname}`);
+  };
+
   const topPanelOffset = showSearchPanel || showRenamePanel ? 56 : 16;
 
   return (
@@ -542,6 +551,7 @@ const ChatRoom = () => {
           type="back-search-more"
           title={chatTitle}
           titleLeft
+          onTitleClick={handleTitleClick}
           onSearch={handleOpenSearch}
           onMore={() => setShowModal(true)}
           alwaysVisible
