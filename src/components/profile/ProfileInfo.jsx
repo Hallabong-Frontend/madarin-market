@@ -67,7 +67,7 @@ const ActionButtons = styled.div`
   margin-top: 8px;
 `;
 
-const IconActionBtn = styled.button`
+const IconActionBtn = styled.button.attrs({ type: 'button' })`
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -77,12 +77,21 @@ const IconActionBtn = styled.button`
   justify-content: center;
   background: ${({ theme }) => theme.colors.white};
   transition: background-color 0.2s;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+
+  svg {
+    pointer-events: none;
+  }
+
   &:hover {
     background-color: ${({ theme }) => theme.colors.gray100};
   }
 `;
 
-const FollowButton = styled.button`
+const FollowButton = styled.button.attrs({ type: 'button' })`
   padding: 8px 28px;
   border-radius: ${({ theme }) => theme.borderRadius.round};
   font-size: ${({ theme }) => theme.fonts.size.sm};
@@ -103,7 +112,7 @@ const FollowButton = styled.button`
     `}
 `;
 
-const EditButton = styled.button`
+const EditButton = styled.button.attrs({ type: 'button' })`
   padding: 8px 24px;
   border-radius: ${({ theme }) => theme.borderRadius.round};
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -117,7 +126,7 @@ const EditButton = styled.button`
   }
 `;
 
-const ProfileInfo = ({ profile, isMyProfile, following, handleFollow, handleChat }) => {
+const ProfileInfo = ({ profile, isMyProfile, following, handleFollow, handleChat, handleShare }) => {
   const navigate = useNavigate();
 
   return (
@@ -155,7 +164,7 @@ const ProfileInfo = ({ profile, isMyProfile, following, handleFollow, handleChat
           <FollowButton $following={following} onClick={handleFollow}>
             {following ? '언팔로우' : '팔로우'}
           </FollowButton>
-          <IconActionBtn>
+          <IconActionBtn onClick={handleShare}>
             <ShareIcon />
           </IconActionBtn>
         </ActionButtons>

@@ -131,6 +131,26 @@ export const sendTextMessage = async (chatId, senderId, text) => {
 };
 
 // 이미지 메시지 전송 (Mandarin API 업로드 후 URL 저장)
+export const sendProfileMessage = async (chatId, senderId, profile) => {
+  await addDoc(collection(db, 'chats', chatId, 'messages'), {
+    senderId,
+    text: '',
+    imageUrl: null,
+    profileShare: {
+      accountname: profile?.accountname || '',
+      username: profile?.username || '',
+      image: profile?.image || '',
+      intro: profile?.intro || '',
+    },
+    createdAt: serverTimestamp(),
+  });
+  await updateDoc(doc(db, 'chats', chatId), {
+    lastMessage: '프로필을 공유했어요.',
+    lastSenderId: senderId,
+    lastMessageAt: serverTimestamp(),
+  });
+};
+
 export const sendImageMessage = async (chatId, senderId, file) => {
   const info = await uploadImage(file);
   const imageUrl = getImageUrl(info.filename);
