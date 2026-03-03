@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { toggleReaction } from '../../firebase/chat';
+import { getChatId, getOrCreateChat, toggleReaction } from '../../firebase/chat';
 import { formatMsgTime, getMsgDateKey, formatMsgDate } from '../../utils/chatFormat';
 import { STICKER_MAP } from './EmojiPicker';
 import Avatar from '../common/Avatar';
@@ -168,6 +168,50 @@ const MessageItemContainer = styled.div`
       : ''}
 `;
 
+const SharedProfileCard = styled.div`
+  width: 220px;
+  padding: 14px 12px 12px;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.white};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+`;
+
+const SharedName = styled.p`
+  font-size: ${({ theme }) => theme.fonts.size.base};
+  font-weight: ${({ theme }) => theme.fonts.weight.bold};
+  color: ${({ theme }) => theme.colors.black};
+`;
+
+const SharedIntro = styled.p`
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+  color: ${({ theme }) => theme.colors.gray500};
+  line-height: 1.4;
+  min-height: 18px;
+`;
+
+const SharedBtnRow = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 6px;
+`;
+
+const SharedActionBtn = styled.button`
+  flex: 1;
+  height: 30px;
+  border-radius: ${({ theme }) => theme.borderRadius.round};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  font-size: ${({ theme }) => theme.fonts.size.xs};
+  font-weight: ${({ theme }) => theme.fonts.weight.medium};
+  color: ${({ $primary, theme }) => ($primary ? theme.colors.white : theme.colors.gray500)};
+  background: ${({ $primary, theme }) => ($primary ? theme.colors.primary : theme.colors.white)};
+`;
+
 const ChatMessageItem = ({
   msg,
   prevMsg,
@@ -203,6 +247,31 @@ const ChatMessageItem = ({
     !prevMsg || prevMsg.senderId !== msg.senderId || prevDateKey !== currentDateKey || prevTime !== currentTime;
 
   const hasAnyReaction = REACTION_TYPES.some(({ key }) => (msg.reactions?.[key]?.length || 0) > 0);
+  const sharedProfile = msg.profileShare;
+
+  const handleOpenSharedProfile = () => {
+    if (!sharedProfile?.accountname) return;
+    navigate(`/profile/${sharedProfile.accountname}`);
+  };
+
+  const handleStartDirectChat = async () => {
+    if (!user?.accountname || !sharedProfile?.accountname) return;
+    const dmChatId = getChatId(user.accountname, sharedProfile.accountname);
+    await getOrCreateChat(
+      dmChatId,
+      {
+        accountname: user.accountname,
+        username: user.username || chatInfo?.participantInfo?.[user.accountname]?.username || user.accountname,
+        image: user.image || '',
+      },
+      {
+        accountname: sharedProfile.accountname,
+        username: sharedProfile.username || sharedProfile.accountname,
+        image: sharedProfile.image || '',
+      },
+    );
+    navigate(`/chat/${dmChatId}`);
+  };
 
   return (
     <MessageItemContainer data-message-id={msg.id} $isSearchActive={isSearchActive}>
@@ -231,7 +300,19 @@ const ChatMessageItem = ({
                 </SenderName>
               )}
               <BubbleRow>
-                {msg.stickerKey ? (
+                {sharedProfile ? (
+                  <SharedProfileCard onContextMenu={(e) => onContextMenu(e, msg, isMine)}>
+                    <Avatar src={sharedProfile.image} alt={sharedProfile.username} size="56px" border />
+                    <SharedName>{sharedProfile.username}</SharedName>
+                    <SharedIntro>{sharedProfile.intro || '소개가 없습니다.'}</SharedIntro>
+                    <SharedBtnRow>
+                      <SharedActionBtn $primary onClick={handleStartDirectChat}>
+                        1:1채팅
+                      </SharedActionBtn>
+                      <SharedActionBtn onClick={handleOpenSharedProfile}>프로필 보기</SharedActionBtn>
+                    </SharedBtnRow>
+                  </SharedProfileCard>
+                ) : msg.stickerKey ? (
                   <StickerImg
                     src={STICKER_MAP[msg.stickerKey]}
                     alt="스티커"
@@ -251,6 +332,18 @@ const ChatMessageItem = ({
                 {showTime && <ChatTime>{currentTime}</ChatTime>}
               </BubbleRow>
             </BubbleColumn>
+          ) : sharedProfile ? (
+            <SharedProfileCard onContextMenu={(e) => onContextMenu(e, msg, isMine)}>
+              <Avatar src={sharedProfile.image} alt={sharedProfile.username} size="56px" border />
+              <SharedName>{sharedProfile.username}</SharedName>
+              <SharedIntro>{sharedProfile.intro || '소개가 없습니다.'}</SharedIntro>
+              <SharedBtnRow>
+                <SharedActionBtn $primary onClick={handleStartDirectChat}>
+                  1:1채팅
+                </SharedActionBtn>
+                <SharedActionBtn onClick={handleOpenSharedProfile}>프로필 보기</SharedActionBtn>
+              </SharedBtnRow>
+            </SharedProfileCard>
           ) : msg.stickerKey ? (
             <StickerImg
               src={STICKER_MAP[msg.stickerKey]}

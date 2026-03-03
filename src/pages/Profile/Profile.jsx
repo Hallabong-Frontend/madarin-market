@@ -5,7 +5,7 @@ import { getMyProducts, deleteProduct } from '../../api/product';
 import { getMyInfo } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useThemeMode } from '../../context/ThemeModeContext';
-import { getChatId, getOrCreateChat } from '../../firebase/chat';
+import { getChatId, getOrCreateChat, subscribeToChats, sendProfileMessage } from '../../firebase/chat';
 
 import BottomTabNav from '../../components/common/BottomTabNav';
 import BottomModal from '../../components/common/BottomModal';
@@ -18,6 +18,7 @@ import ProfileInfo from '../../components/profile/ProfileInfo';
 import ProfileProductList from '../../components/profile/ProfileProductList';
 import ProfilePostSection from '../../components/profile/ProfilePostSection';
 import ProfileSettingsModal from '../../components/profile/ProfileSettingsModal';
+import ProfileShareChatModal from '../../components/profile/ProfileShareChatModal';
 
 import styled from 'styled-components';
 
@@ -46,6 +47,9 @@ const Profile = () => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showPrivacyInfo, setShowPrivacyInfo] = useState(false);
   const [privacyEmail, setPrivacyEmail] = useState('');
+  const [showShareChatModal, setShowShareChatModal] = useState(false);
+  const [shareChats, setShareChats] = useState([]);
+  const [isShareChatsLoading, setIsShareChatsLoading] = useState(false);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showProductModal, setShowProductModal] = useState(false);
@@ -76,6 +80,16 @@ const Profile = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (!showShareChatModal || !me?.accountname) return;
+    setIsShareChatsLoading(true);
+    const unsub = subscribeToChats(me.accountname, (chats) => {
+      setShareChats(chats || []);
+      setIsShareChatsLoading(false);
+    });
+    return () => unsub();
+  }, [showShareChatModal, me?.accountname]);
 
   useEffect(() => {
     if (!showPrivacyInfo) return;
@@ -149,6 +163,47 @@ const Profile = () => {
     }
   };
 
+  const getChatPreview = (chat) => {
+    if (chat.isGroupChat) {
+      return {
+        title: chat.groupTitle || '그룹 채팅',
+        image: chat.groupImage || '',
+      };
+    }
+    const otherAccountname = (chat.participants || []).find((p) => p !== me?.accountname);
+    const info = chat.participantInfo?.[otherAccountname] || {};
+    const nickname = chat.nicknames?.[me?.accountname]?.[otherAccountname];
+    return {
+      title: nickname || info.username || otherAccountname || '채팅',
+      image: info.image || '',
+    };
+  };
+
+  const shareTargets = shareChats.map((chat) => {
+    const preview = getChatPreview(chat);
+    return {
+      id: chat.id,
+      title: preview.title,
+      image: preview.image,
+    };
+  });
+
+  const handleShare = () => {
+    setShowShareChatModal(true);
+  };
+
+  const handleShareToChat = async (chat) => {
+    if (!chat?.id || !me?.accountname || !profile?.accountname) return;
+    await sendProfileMessage(chat.id, me.accountname, {
+      accountname: profile.accountname,
+      username: profile.username,
+      image: profile.image,
+      intro: profile.intro || '',
+    });
+    setShowShareChatModal(false);
+    navigate(`/chat/${chat.id}`);
+  };
+
   const scrollProductList = (direction) => {
     const listEl = productListRef.current;
     if (!listEl) return;
@@ -197,6 +252,7 @@ const Profile = () => {
           following={following}
           handleFollow={handleFollow}
           handleChat={handleChat}
+          handleShare={handleShare}
         />
 
         {products.length > 0 && (
@@ -254,6 +310,14 @@ const Profile = () => {
         danger
         onCancel={() => setShowDeleteProductAlert(false)}
         onConfirm={handleDeleteProduct}
+      />
+
+      <ProfileShareChatModal
+        isOpen={showShareChatModal}
+        onClose={() => setShowShareChatModal(false)}
+        chats={shareTargets}
+        isLoading={isShareChatsLoading}
+        onSelect={handleShareToChat}
       />
     </>
   );
