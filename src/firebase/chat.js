@@ -10,6 +10,8 @@ import {
   query,
   orderBy,
   limit,
+  limitToLast,
+  endBefore,
   updateDoc,
   deleteDoc,
   writeBatch,
@@ -397,15 +399,30 @@ export const toggleReaction = async (chatId, messageId, accountname, reactionTyp
   });
 };
 
-// 채팅방 메시지 실시간 구독 (createdAt 오름차순)
-export const subscribeToMessages = (chatId, callback, joinTime) => {
-  let q = query(collection(db, 'chats', chatId, 'messages'), orderBy('createdAt', 'asc'));
-
-  if (joinTime) {
-    q = query(q, where('createdAt', '>=', joinTime));
-  }
-
+// 채팅방 메시지 실시간 구독 (최신 limitCount개, createdAt 오름차순)
+export const subscribeToMessages = (chatId, callback, joinTime, limitCount = 40) => {
+  const constraints = [
+    orderBy('createdAt', 'asc'),
+    ...(joinTime ? [where('createdAt', '>=', joinTime)] : []),
+    limitToLast(limitCount),
+  ];
+  const q = query(collection(db, 'chats', chatId, 'messages'), ...constraints);
   return onSnapshot(q, (snapshot) => {
     callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data({ serverTimestamps: 'estimate' }) })));
   });
+};
+
+// 특정 시점 이전 메시지 조회 (위로 스크롤 시 이전 메시지 로드용)
+export const fetchOlderMessages = async (chatId, beforeTimestamp, limitCount = 30, joinTime = null) => {
+  const constraints = [
+    orderBy('createdAt', 'asc'),
+    ...(joinTime ? [where('createdAt', '>=', joinTime)] : []),
+    endBefore(beforeTimestamp),
+    limitToLast(limitCount),
+  ];
+  const snapshot = await getDocs(query(collection(db, 'chats', chatId, 'messages'), ...constraints));
+  return {
+    messages: snapshot.docs.map((d) => ({ id: d.id, ...d.data({ serverTimestamps: 'estimate' }) })),
+    hasMore: snapshot.docs.length === limitCount,
+  };
 };
