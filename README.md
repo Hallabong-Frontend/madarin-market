@@ -1,5 +1,11 @@
 # 🍊 Mandarin Market (감귤마켓)
 
+<p align="center">
+<img width="900" src="https://capsule-render.vercel.app/api?type=waving&color=FFB74D&height=220&section=header&text=Mandarin%20Market&fontSize=50&fontColor=ffffff"/>
+</p>
+
+<p align="center">
+
 ![Repo](https://img.shields.io/badge/repo-Hallabong--Frontend%2Fmandarin--market-181717?logo=github&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
@@ -8,328 +14,349 @@
 ![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?logo=firebase&logoColor=black)
 ![Axios](https://img.shields.io/badge/Axios-1.13-5A29E4?logo=axios&logoColor=white)
 
-SNS형 피드 + 중고거래 + 실시간 채팅을 결합한 **모바일 퍼스트 웹 앱**입니다.  
-게시글/상품 CRUD, 팔로우/검색, 그리고 **Firebase Firestore 기반 채팅(1:1/그룹/리액션/핀/테마)**을 제공합니다.
+</p>
 
-> **Design**: Mobile-first / max-width 390px  
-> **API Base**: `https://dev.wenivops.co.kr/services/mandarin`  
-> **AI Proxy**: `https://dev.wenivops.co.kr/services/openai-api`
-
----
-
-## 목차
-- [목표](#목표)
-- [배포](#배포)
-- [코드 품질 관리](#코드-품질-관리)
-- [기술 스택](#기술-스택)
-- [핵심 기능](#핵심-기능)
-- [Screenshots](#screenshots)
-- [Architecture](#architecture)
-- [개발환경 및 실행](#개발환경-및-실행)
-- [환경 변수](#환경-변수)
-- [브랜치 전략](#브랜치-전략)
-- [협업 프로세스](#협업-프로세스)
-- [Commit Convention](#commit-convention)
-- [URL 구조](#url-구조)
-- [프로젝트 구조](#프로젝트-구조)
-- [Troubleshooting](#troubleshooting)
-- [추후 개발 사항](#추후-개발-사항)
+<p align="center">
+SNS형 피드 + 중고거래 + 실시간 채팅을 결합한 <b>모바일 퍼스트 웹 애플리케이션</b>
+</p>
 
 ---
 
-## 목표
+# 📌 프로젝트 소개
 
-- **커뮤니티(피드) + 거래(상품) + 소통(채팅)**을 하나의 앱에서 제공
-- 협업 기준에 맞는 **레이어 분리(UI / API / Context / Firebase)** 및 코드 컨벤션 적용
-- 모바일 환경에서 사용성이 좋은 **Mobile-first UI** 구현
+Mandarin Market은 **SNS 피드 + 중고거래 + 실시간 채팅** 기능을 제공하는 웹 애플리케이션입니다.
 
----
+사용자는
 
-## 배포
+- 게시글 작성
+- 상품 등록
+- 팔로우 및 사용자 검색
+- Firebase 기반 실시간 채팅
 
-- **배포 URL**: (추가 예정)
-- **데모 계정**: (추가 예정)
-
----
-
-## 코드 품질 관리
-
-본 프로젝트는 **ESLint + Prettier**로 코드 품질을 관리합니다.
-
-### Scripts
-```bash
-npm run dev           # 개발 서버
-npm run build         # 프로덕션 빌드
-npm run preview       # 빌드 프리뷰
-npm run lint          # ESLint
-npm run format        # Prettier 포맷
-npm run format:check  # Prettier 체크
-```
+을 사용할 수 있습니다.
 
 ---
 
-## 기술 스택
+# 👨‍💻 Team
 
-- **Frontend**: React 19, Vite
-- **Routing**: React Router v7
-- **Styling**: styled-components (theme 기반)
-- **HTTP**: Axios (interceptor 기반 토큰 주입/401 처리)
-- **Realtime Chat**: Firebase (Firestore, Analytics)
-- **External API**: Weniv Mandarin API
-- **AI**: Weniv OpenAI proxy (이미지 기반 상품명/설명 생성)
+<table>
+<tr>
 
----
+<td align="center">
+<b>강민기</b><br/>
+Frontend
+</td>
 
-## 핵심 기능
+<td align="center">
+<b>박미소</b><br/>
+Frontend
+</td>
 
-### 인증/유저
-- 회원가입/로그인
-- `AuthContext`로 인증 상태 전역 관리
-- 토큰 저장 및 사용자 정보 갱신
+<td align="center">
+<b>변슬기</b><br/>
+Chat System
+</td>
 
-### 피드/게시글
-- 게시글 CRUD
-- 좋아요/댓글 CRUD
-- 신고
+<td align="center">
+<b>백동명</b><br/>
+Chat / Post
+</td>
 
-### 상품
-- 상품 CRUD
-- 상품 정보 AI 자동 생성(이미지 입력 기반)
+<td align="center">
+<b>손은애</b><br/>
+Profile / Docs
+</td>
 
-### 검색/팔로우
-- 사용자 검색
-- 팔로우/언팔로우 및 리스트
-
-### 실시간 채팅(Firebase)
-- 1:1 채팅 생성/구독
-- 그룹 채팅 생성(제목/이미지)
-- 메시지 전송(텍스트/이미지), 수정/삭제
-- 리액션(heart/thumbs_up/star)
-- 채팅 핀(pin), 채팅 테마 저장
+</tr>
+</table>
 
 ---
 
-## Screenshots
+# ⭐ 주요 기능
 
-> 레포 `images/` 폴더의 스크린샷을 사용합니다.
+| 기능 | 설명 |
+|---|---|
+| 사용자 인증 | 회원가입 / 로그인 |
+| 피드 | 게시글 CRUD, 좋아요, 댓글 |
+| 상품 | 상품 등록 및 수정 |
+| 검색 | 사용자 검색 |
+| 팔로우 | 팔로우 / 언팔로우 |
+| 채팅 | Firebase 실시간 채팅 |
 
-| Splash | Login | Login (Email) |
+---
+
+# 🎬 주요 기능 (GIF)
+
+### 로그인
+
+<img src="./docs/gif/login.gif" width="700"/>
+
+### 게시글 작성
+
+<img src="./docs/gif/post.gif" width="700"/>
+
+### 실시간 채팅
+
+<img src="./docs/gif/chat.gif" width="700"/>
+
+### 상품 등록
+
+<img src="./docs/gif/product.gif" width="700"/>
+
+---
+
+# 📸 Screenshots
+
+| Splash | Login | Feed |
 |---|---|---|
-| ![Splash](./images/Splash%20Screen.png) | ![Login](./images/Login.png) | ![LoginEmail](./images/Login%20-%20email.png) |
+| ![](./images/Splash%20Screen.png) | ![](./images/Login.png) | ![](./images/Home.png) |
 
-| Feed(Home) | Post | Upload |
+| Chat | Profile | Upload |
 |---|---|---|
-| ![Home](./images/Home.png) | ![Post](./images/Post.png) | ![Upload](./images/Upload.png) |
-
-| Search | Chat List | Chat Room |
-|---|---|---|
-| ![Search](./images/search-2.png) | ![ChatList](./images/chat%20List.png) | ![ChatRoom](./images/chat%20room.png) |
-
-| Profile | Edit Profile | Edit Product |
-|---|---|---|
-| ![Profile](./images/your%20profile.png) | ![EditProfile](./images/Profile%20modification.png) | ![EditProduct](./images/product%20modification.png) |
+| ![](./images/chat%20room.png) | ![](./images/your%20profile.png) | ![](./images/Upload.png) |
 
 ---
 
-## Architecture
+# 🗄 ERD
 
-### 1) High-level (Layered)
-```text
-UI (Pages/Components)
-  ├─ Context (Auth / Theme)
-  ├─ API Layer (Axios instance + domain modules)
-  └─ Firebase Layer (Chat service)
-```
-
-### 2) Runtime Flow (Mermaid)
 ```mermaid
-flowchart TD
-  U[User Action] --> R[React Router Pages]
-  R --> C[Components]
-  C -->|auth state| A[AuthContext]
-  C -->|theme| T[ThemeModeContext]
+erDiagram
 
-  C -->|REST 요청| AX[Axios Instance<br/>src/api/config.js]
-  AX -->|Authorization: Bearer token| API[(Mandarin API)]
+USER {
+ string id
+ string email
+ string username
+ string profileImage
+}
 
-  C -->|realtime| FB[Firebase Firestore<br/>src/firebase/chat.js]
-  FB --> CH[(Chats/Messages)]
-  AX -->|401| LG[localStorage clear + /login redirect]
+POST {
+ string id
+ string content
+ string createdAt
+}
+
+COMMENT {
+ string id
+ string content
+}
+
+PRODUCT {
+ string id
+ string name
+ number price
+}
+
+CHAT {
+ string id
+ string title
+}
+
+MESSAGE {
+ string id
+ string text
+}
+
+USER ||--o{ POST : creates
+USER ||--o{ COMMENT : writes
+POST ||--o{ COMMENT : has
+
+USER ||--o{ PRODUCT : sells
+
+USER ||--o{ CHAT : joins
+CHAT ||--o{ MESSAGE : contains
+USER ||--o{ MESSAGE : sends
 ```
-
-### 3) 핵심 설계 포인트
-- **AuthContext**
-  - 앱 마운트 시 `localStorage.token` 기반 사용자 검증
-  - `login()` → token/accountname 저장, `logout()` → 스토리지 정리 및 상태 초기화
-- **Axios Interceptor**
-  - Request: Authorization 자동 첨부
-  - Response: 401 발생 시 토큰 제거 + 로그인 페이지로 리다이렉트
-- **Firebase Chat Service**
-  - 채팅 생성/구독, 메시지 전송/수정/삭제, 리액션/핀/테마 등 채팅 도메인 로직 집중
 
 ---
 
-## 개발환경 및 실행
+# 🏗 System Architecture
 
-### 요구사항
-- Node.js (권장: LTS)
+```mermaid
+flowchart LR
 
-### 설치/실행
-```bash
+User --> ReactApp
+
+ReactApp --> Pages
+ReactApp --> Components
+
+Components --> AuthContext
+Components --> ThemeContext
+
+Components --> AxiosAPI
+
+AxiosAPI --> MandarinAPI
+
+Components --> FirebaseChat
+
+FirebaseChat --> FirestoreDB
+```
+
+---
+
+# 🏗 Application Architecture
+
+```
+src
+ ├── api
+ │    ├ auth
+ │    ├ user
+ │    ├ post
+ │    └ product
+ │
+ ├── components
+ │
+ ├── context
+ │
+ ├── firebase
+ │
+ ├── pages
+ │
+ ├── styles
+ │
+ └── utils
+```
+
+---
+
+# ⚙️ 기술 스택
+
+### Frontend
+
+- React
+- Vite
+- React Router
+
+### Styling
+
+- styled-components
+
+### Networking
+
+- Axios
+
+### Realtime
+
+- Firebase Firestore
+
+### API
+
+- Weniv Mandarin API
+
+---
+
+# 📅 개발 일정 (WBS)
+
+```mermaid
+gantt
+title Mandarin Market Development
+dateFormat YYYY-MM-DD
+
+section Chat
+Group Chat Feature :done, 2026-02-28, 1d
+Chat Invite Feature :done, 2026-02-28, 1d
+
+section Refactoring
+ChatRoom Refactor :done, 2026-03-01, 1d
+
+section Features
+Nickname Setting :done, 2026-03-02, 1d
+Comment Pin :done, 2026-03-04, 1d
+```
+
+---
+
+# 🚀 실행 방법
+
+### 설치
+
+```
 git clone https://github.com/Hallabong-Frontend/mandarin-market.git
 cd mandarin-market
 npm install
+```
+
+### 실행
+
+```
 npm run dev
 ```
 
 ---
 
-## 환경 변수
+# 🌿 브랜치 전략
 
-Firebase 기능 사용을 위해 `.env` 파일이 필요합니다. (`VITE_` prefix 필수)
-
-```bash
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-VITE_FIREBASE_MEASUREMENT_ID=
+```
+main
+ └ dev
+     ├ feature/*
+     └ fix/*
 ```
 
 ---
 
-## 브랜치 전략
+# 🔀 협업 프로세스
 
-Git Flow에 준하는 단순 전략을 사용합니다.
-
-```text
-main   ── 배포 브랜치
-dev    ── 통합 개발 브랜치
-feature/* ─ 기능 단위 브랜치
-fix/*     ─ 긴급 버그 픽스 브랜치
-```
-
-브랜치 네이밍 예시
-```text
-feature/auth-login
-feature/chat-reactions
-feature/product-ai
-fix/chat-scroll-bug
-```
+1. Issue 생성
+2. feature 브랜치 생성
+3. 개발
+4. Pull Request
+5. Code Review 후 merge
 
 ---
 
-## 협업 프로세스
+# 🧹 코드 품질 관리
 
-1. **Issue 생성**
-   - 작업 범위는 “1 Issue = 1~2 기능(작게)” 기준
-2. **feature 브랜치 생성**
-```bash
-git checkout dev
-git pull origin dev
-git checkout -b feature/작업이름
 ```
-3. **개발 & 자체 점검**
-   - `npm run lint`, `npm run format:check`
-4. **PR 생성 → 코드리뷰 → Merge**
-   - PR 템플릿(권장)
-     - 무엇을/왜/어떻게
-     - 스크린샷(가능하면)
-     - 체크리스트(린트/포맷/동작 확인)
-
----
-
-## Commit Convention
-
-Conventional Commit 기반을 권장합니다.
-
-```text
-feat: 기능 추가
-fix: 버그 수정
-refactor: 리팩토링
-style: 스타일/포맷(로직 변경 없음)
-docs: 문서 수정
-chore: 설정/빌드/의존성
-```
-
-예시
-```text
-feat: add firebase group chat creation
-fix: prevent duplicate send on enter
-refactor: extract axios error handler
-docs: update README screenshots section
+npm run lint
+npm run format
 ```
 
 ---
 
-## URL 구조
+# 🐞 Troubleshooting
 
-> 실제 라우트는 `App.jsx` 기준으로 관리합니다.
+### npm 실행 오류
 
-대표 라우트(예시)
-```text
-/                     Splash
-/login                로그인 메인
-/login/email          이메일 로그인
-/signup               회원가입
-/signup/profile        프로필 설정
-/feed                 피드
-/search               사용자 검색
-/profile/:accountname 프로필
-/post/:postId          게시글 상세
-/product/register      상품 등록
-/product/edit/:id      상품 수정
-/chat                 채팅 목록
-/chat/:chatId          채팅방
+```
+npm : this system cannot run script npm.ps1
+```
+
+해결
+
+```
+Set-ExecutionPolicy RemoteSigned
 ```
 
 ---
 
-## 프로젝트 구조
+# 💬 개발하면서 느낀점
 
-```text
-src/
-  api/          # auth/user/post/comment/product/ai
-  assets/       # 아이콘/이미지(정적 리소스)
-  components/   # common + domain components
-  constants/    # url/common constants
-  context/      # AuthContext, ThemeModeContext
-  firebase/     # firebase config + chat service
-  hooks/        # useForm 등
-  pages/        # route pages
-  styles/       # GlobalStyles/theme
-  utils/        # format, validation, image url helpers
-  App.jsx
-  main.jsx
-```
+### 강민기
+(작성 예정)
 
----
+### 박미소
+(작성 예정)
 
-## Troubleshooting
+### 변슬기
+(작성 예정)
 
-### 1) `npm` 실행이 PowerShell에서 막히는 경우
-- 증상: `npm : 이 시스템에서 스크립트를 실행할 수 없으므로 ... npm.ps1 ...`
-- 해결: PowerShell 실행 정책을 변경하거나, Git Bash/WSL 터미널 사용  
-  (팀 공통 문서에 OS별 해결 가이드를 추가 권장)
+### 백동명
+(작성 예정)
 
-### 2) 채팅이 동작하지 않는 경우
-- 원인: `.env` 누락 또는 Firebase 프로젝트 설정값 불일치
-- 해결: `.env` 설정 후 재실행 (`npm run dev`)
-
-### 3) API 요청이 401로 떨어지는 경우
-- 원인: 토큰 만료/유효하지 않은 토큰
-- 해결: 로그아웃 후 재로그인 (인터셉터가 자동으로 `/login` 리다이렉트)
+### 손은애
+(작성 예정)
 
 ---
 
-## 추후 개발 사항
+# 📌 추후 개발 사항
 
-- [ ] 배포 URL/데모 계정/소개 영상(GIF) README에 추가
-- [ ] 테스트 도입 (예: Vitest + React Testing Library)
-- [ ] CI (GitHub Actions)로 lint/format 체크 자동화
-- [ ] 채팅 성능 개선(무한 스크롤/페이지네이션)
-- [ ] 접근성 개선(키보드 포커스/ARIA)
+- 채팅 성능 개선
+- 테스트 코드 도입
+- CI/CD 구축
+- 접근성 개선
 
 ---
+
+<p align="center">
+<img src="https://capsule-render.vercel.app/api?type=waving&color=FFB74D&height=120&section=footer"/>
+</p>
