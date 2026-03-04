@@ -256,12 +256,13 @@ const ChatMessageItem = ({
   reactionSrcMap,
   chatId,
   isSearchActive = false,
+  hasMoreAbove = false,
 }) => {
   const navigate = useNavigate();
 
   const currentDateKey = getMsgDateKey(msg.createdAt);
   const prevDateKey = prevMsg ? getMsgDateKey(prevMsg.createdAt) : '';
-  const showDateDivider = !prevMsg || currentDateKey !== prevDateKey;
+  const showDateDivider = prevMsg ? currentDateKey !== prevDateKey : !hasMoreAbove;
 
   const currentTime = formatMsgTime(msg.createdAt);
   const prevTime = prevMsg ? formatMsgTime(prevMsg.createdAt) : '';

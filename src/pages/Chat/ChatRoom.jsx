@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+﻿import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { doc, onSnapshot } from 'firebase/firestore';
 import styled from 'styled-components';
@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
 import {
   subscribeToMessages,
+  fetchOlderMessages,
   toggleReaction,
   markAsRead,
   editMessage,
@@ -23,6 +24,7 @@ import {
   updateChatTitle,
 } from '../../firebase/chat';
 import NicknameModal from '../../components/chat/NicknameModal';
+import Spinner from '../../components/common/Spinner';
 import { uploadImage } from '../../api/auth';
 import { getImageUrl } from '../../utils/format';
 import ChatThemePanel, { BG_COLORS, BUBBLE_COLORS } from './ChatThemePanel';
@@ -192,7 +194,10 @@ const ChatRoom = () => {
   const contextMenuRef = useRef(null);
 
   const [chatInfo, setChatInfo] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [realtimeMessages, setRealtimeMessages] = useState([]);
+  const [olderMessages, setOlderMessages] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [contextMenu, setContextMenu] = useState({
@@ -233,9 +238,15 @@ const ChatRoom = () => {
 
   const themeInitialized = useRef(false);
   const isInitialLoad = useRef(true);
-  const prevMsgsLength = useRef(0);
+  const prevLastMsgIdRef = useRef(null);
   const joinedAtRef = useRef(null);
   const [joinedAtReady, setJoinedAtReady] = useState(false);
+  const topSentinelRef = useRef(null);
+  const prevScrollHeightRef = useRef(null);
+  const prevScrollYRef = useRef(null);
+  const prevRealtimeRef = useRef([]);
+  const scrollToBottomRef = useRef(false);
+  const scrollIntentRef = useRef(false);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'chats', chatId), (snap) => {
@@ -267,7 +278,7 @@ const ChatRoom = () => {
 
   useEffect(() => {
     if (!chatId || !user?.accountname || !joinedAtReady) return;
-    const unsub = subscribeToMessages(chatId, setMessages, joinedAtRef.current);
+    const unsub = subscribeToMessages(chatId, setRealtimeMessages, joinedAtRef.current);
     return () => unsub();
   }, [chatId, user?.accountname, joinedAtReady]);
 
@@ -277,27 +288,110 @@ const ChatRoom = () => {
     }
   }, [chatId, user?.accountname]);
 
-  useLayoutEffect(() => {
-    if (messages.length === 0) return;
+  // 렌더링에 사용할 메시지 목록: 이전 메시지 + 실시간 메시지 (중복 제거)
+  const displayMessages = useMemo(() => {
+    const ids = new Set();
+    return [...olderMessages, ...realtimeMessages].filter((m) => {
+      if (ids.has(m.id)) return false;
+      ids.add(m.id);
+      return true;
+    });
+  }, [olderMessages, realtimeMessages]);
 
-    const isNewMessage = messages.length > prevMsgsLength.current;
-    const lastMessage = messages[messages.length - 1];
+  // 실시간 구독 창에서 밀려난 메시지를 olderMessages로 보존 (갭 방지)
+  useEffect(() => {
+    if (olderMessages.length > 0 && prevRealtimeRef.current.length > 0) {
+      const realtimeIds = new Set(realtimeMessages.map((m) => m.id));
+      const olderIds = new Set(olderMessages.map((m) => m.id));
+      const dropped = prevRealtimeRef.current.filter(
+        (m) => !realtimeIds.has(m.id) && !olderIds.has(m.id),
+      );
+      if (dropped.length > 0) {
+        setOlderMessages((prev) =>
+          [...prev, ...dropped].sort(
+            (a, b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0),
+          ),
+        );
+      }
+    }
+    prevRealtimeRef.current = realtimeMessages;
+  }, [realtimeMessages]);
+
+  // 이전 메시지 로드 후 스크롤 위치 복원 / 갭 보정 후 맨 밑 유지
+  useLayoutEffect(() => {
+    if (prevScrollHeightRef.current !== null) {
+      const diff = document.documentElement.scrollHeight - prevScrollHeightRef.current;
+      window.scrollTo(0, (prevScrollYRef.current || 0) + diff);
+      prevScrollHeightRef.current = null;
+      prevScrollYRef.current = null;
+      scrollToBottomRef.current = false;
+    } else if (scrollToBottomRef.current) {
+      // gap prevention이 olderMessages를 추가해 DOM이 커졌을 때 다시 맨 밑으로 보정
+      window.scrollTo(0, document.documentElement.scrollHeight);
+      scrollToBottomRef.current = false;
+    }
+  }, [olderMessages]);
+
+  // 이전 메시지 불러오기
+  const loadOlderMessages = async () => {
+    if (isLoadingMore || !hasMore) return;
+    const oldestTimestamp =
+      olderMessages.length > 0 ? olderMessages[0]?.createdAt : realtimeMessages[0]?.createdAt;
+    if (!oldestTimestamp) return;
+
+    setIsLoadingMore(true);
+    prevScrollHeightRef.current = document.documentElement.scrollHeight;
+    prevScrollYRef.current = window.scrollY;
+    try {
+      const result = await fetchOlderMessages(chatId, oldestTimestamp, 30, joinedAtRef.current);
+      setOlderMessages((prev) => [...result.messages, ...prev]);
+      setHasMore(result.hasMore);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  // 맨 위 sentinel이 화면에 보이면 이전 메시지 로드
+  useEffect(() => {
+    if (!topSentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) loadOlderMessages();
+      },
+      { threshold: 0, rootMargin: '80px 0px 0px 0px' },
+    );
+    observer.observe(topSentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, olderMessages, realtimeMessages]);
+
+  useLayoutEffect(() => {
+    if (realtimeMessages.length === 0) return;
+
+    const lastMessage = realtimeMessages[realtimeMessages.length - 1];
     const isMine = lastMessage?.senderId === user?.accountname;
+    const isNewMessage = lastMessage?.id !== prevLastMsgIdRef.current;
+
+    // showScrollDownButton 상태 대신 실제 스크롤 위치로 판단
+    // (smooth 애니메이션 중 상태가 바뀌어 다음 메시지 자동 스크롤이 막히는 문제 방지)
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const nearBottom = window.scrollY >= maxScroll - 300 || scrollIntentRef.current;
 
     if (isInitialLoad.current) {
-      bottomRef.current?.scrollIntoView({ behavior: 'instant' });
+      window.scrollTo(0, document.documentElement.scrollHeight);
       isInitialLoad.current = false;
     } else if (isNewMessage) {
-      if (!showScrollDownButton || isMine) {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      if (nearBottom || isMine) {
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: isMine ? 'instant' : 'smooth' });
+        scrollToBottomRef.current = isMine;
+        if (!isMine) scrollIntentRef.current = true;
         setShowNewMessageAlert(false);
       } else {
         setShowNewMessageAlert(true);
       }
     }
 
-    prevMsgsLength.current = messages.length;
-  }, [messages, user?.accountname, showScrollDownButton]);
+    prevLastMsgIdRef.current = lastMessage?.id ?? null;
+  }, [realtimeMessages, user?.accountname]);
 
   useEffect(() => {
     const updateScrollButton = () => {
@@ -308,6 +402,7 @@ const ChatRoom = () => {
 
       if (isNearBottom) {
         setShowNewMessageAlert(false);
+        scrollIntentRef.current = false;
       }
     };
 
@@ -318,7 +413,7 @@ const ChatRoom = () => {
       window.removeEventListener('scroll', updateScrollButton);
       window.removeEventListener('resize', updateScrollButton);
     };
-  }, [messages, themeReady]);
+  }, [displayMessages, themeReady]);
 
   useEffect(() => {
     if (!contextMenu.show) return;
@@ -334,12 +429,12 @@ const ChatRoom = () => {
       setCurrentMatchIndex(0);
       return;
     }
-    const matched = messages
+    const matched = displayMessages
       .filter((m) => (m.text || '').toLowerCase().includes(keyword))
       .map((m) => m.id);
     setSearchMatchIds(matched);
     setCurrentMatchIndex(0);
-  }, [searchKeyword, messages]);
+  }, [searchKeyword, displayMessages]);
 
   const scrollToMessageById = (messageId) => {
     if (!messageId) return;
@@ -606,12 +701,14 @@ const ChatRoom = () => {
         )}
 
         <MessageList style={{ paddingTop: topPanelOffset }}>
-          {messages.map((msg, index) => (
+          <div ref={topSentinelRef} />
+          {isLoadingMore && <Spinner />}
+          {displayMessages.map((msg, index) => (
             <ChatMessageItem
               key={msg.id}
               msg={msg}
-              prevMsg={index > 0 ? messages[index - 1] : null}
-              nextMsg={messages[index + 1] || null}
+              prevMsg={index > 0 ? displayMessages[index - 1] : null}
+              nextMsg={displayMessages[index + 1] || null}
               isMine={msg.senderId === user?.accountname}
               bubbleColor={bubbleColor}
               otherBubbleColor={otherBubbleColor}
@@ -625,6 +722,7 @@ const ChatRoom = () => {
               reactionSrcMap={REACTION_SRC_MAP}
               chatId={chatId}
               isSearchActive={searchMatchIds[currentMatchIndex] === msg.id}
+              hasMoreAbove={index === 0 && hasMore}
             />
           ))}
           <div ref={bottomRef} />
@@ -634,7 +732,7 @@ const ChatRoom = () => {
       {showNewMessageAlert && (
         <NewMessageAlert
           onClick={() => {
-            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
             setShowNewMessageAlert(false);
           }}
         >
@@ -644,7 +742,7 @@ const ChatRoom = () => {
 
       {showScrollDownButton && !showNewMessageAlert && (
         <ScrollDownButtonArea>
-          <ScrollDownButton onClick={() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })}>
+          <ScrollDownButton onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}>
             <ScrollDownIcon />
           </ScrollDownButton>
         </ScrollDownButtonArea>
