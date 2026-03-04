@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { getChatId, getOrCreateChat, setNickname } from '../../firebase/chat';
@@ -26,10 +26,12 @@ const MemberInfo = styled.div`
   gap: 2px;
 `;
 
-const Username = styled.p`
+const Username = styled.button.attrs({ type: 'button' })`
   font-size: ${({ theme }) => theme.fonts.size.base};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
   color: ${({ theme }) => theme.colors.black};
+  text-align: left;
+  cursor: pointer;
 `;
 
 const AccountId = styled.p`
@@ -63,6 +65,7 @@ const DmButton = styled.button`
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.15s;
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -110,6 +113,12 @@ const GroupMembersPanel = ({ isOpen, onClose, chatInfo, currentUser, chatId }) =
     }
   };
 
+  const handleProfileOpen = (accountname) => {
+    if (!accountname) return;
+    onClose();
+    navigate(`/profile/${accountname}`);
+  };
+
   return (
     <>
       <FullPagePanel isOpen={isOpen} onClose={onClose} title="대화 상대">
@@ -126,7 +135,7 @@ const GroupMembersPanel = ({ isOpen, onClose, chatInfo, currentUser, chatId }) =
               <MemberRow key={accountname}>
                 <Avatar src={info.image} size="44px" />
                 <MemberInfo>
-                  <Username>{displayName}</Username>
+                  <Username onClick={() => handleProfileOpen(accountname)}>{displayName}</Username>
                   <AccountId>@{accountname}</AccountId>
                 </MemberInfo>
                 {isMe ? (
@@ -136,7 +145,9 @@ const GroupMembersPanel = ({ isOpen, onClose, chatInfo, currentUser, chatId }) =
                     <DmButton disabled={!!loadingAccountname} onClick={() => handleDm(accountname)}>
                       {isLoading ? '이동 중...' : '1:1 메시지'}
                     </DmButton>
-                    <NicknameBtn onClick={() => setNicknameTarget({ accountname, displayName: info.username || accountname, nickname })}>
+                    <NicknameBtn
+                      onClick={() => setNicknameTarget({ accountname, displayName: info.username || accountname, nickname })}
+                    >
                       {nickname ? '별명 수정' : '별명 설정'}
                     </NicknameBtn>
                   </ActionButtons>
@@ -153,12 +164,11 @@ const GroupMembersPanel = ({ isOpen, onClose, chatInfo, currentUser, chatId }) =
         onClose={() => setNicknameTarget(null)}
         targetName={nicknameTarget?.displayName || ''}
         currentNickname={nicknameTarget?.nickname || ''}
-        onSave={(nickname) =>
-          setNickname(chatId, currentUser.accountname, nicknameTarget.accountname, nickname)
-        }
+        onSave={(nickname) => setNickname(chatId, currentUser.accountname, nicknameTarget.accountname, nickname)}
       />
     </>
   );
 };
 
 export default GroupMembersPanel;
+

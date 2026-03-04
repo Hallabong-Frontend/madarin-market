@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+﻿import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { getChatId, getOrCreateChat, toggleReaction } from '../../firebase/chat';
 import { formatMsgTime, getMsgDateKey, formatMsgDate } from '../../utils/chatFormat';
@@ -11,7 +11,7 @@ const DateDivider = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 8px 0 4px;
+  margin: 6px 0 14px;
 
   &::before,
   &::after {
@@ -28,7 +28,7 @@ const DateDividerText = styled.span`
   background-color: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.round};
-  padding: 4px 10px;
+  padding: 4px 12px;
 `;
 
 const MessageWrapper = styled.div`
@@ -56,6 +56,7 @@ const Bubble = styled.div`
   font-size: ${({ theme }) => theme.fonts.size.base};
   line-height: 1.5;
   word-break: break-word;
+  white-space: pre-wrap;
 `;
 
 const ChatTime = styled.span`
@@ -119,10 +120,36 @@ const BubbleRow = styled.div`
   gap: 4px;
 `;
 
-const SenderName = styled.span`
+const SenderName = styled.button.attrs({ type: 'button' })`
   font-size: ${({ theme }) => theme.fonts.size.xs};
   color: ${({ theme }) => theme.colors.gray500};
   padding-left: 2px;
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  pointer-events: ${({ $clickable }) => ($clickable ? 'auto' : 'none')};
+`;
+
+const SystemMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 6px 0;
+`;
+
+const SystemMessageText = styled.span`
+  font-size: ${({ theme }) => theme.fonts.size.xs};
+  color: ${({ theme }) => theme.colors.gray500};
+  background-color: ${({ theme }) => theme.colors.gray200};
+  padding: 4px 12px;
+  border-radius: ${({ theme }) => theme.borderRadius.round};
+`;
+
+const UserNameLink = styled.span`
+  font-weight: ${({ theme }) => theme.fonts.weight.bold};
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const ReactionBar = styled.div`
@@ -248,6 +275,7 @@ const ChatMessageItem = ({
 
   const hasAnyReaction = REACTION_TYPES.some(({ key }) => (msg.reactions?.[key]?.length || 0) > 0);
   const sharedProfile = msg.profileShare;
+  const canOpenSenderProfile = !!msg?.senderId;
 
   const handleOpenSharedProfile = () => {
     if (!sharedProfile?.accountname) return;
@@ -273,6 +301,63 @@ const ChatMessageItem = ({
     navigate(`/chat/${dmChatId}`);
   };
 
+  const renderSystemText = () => {
+    const { text, metadata } = msg;
+    if (!metadata) return text;
+
+    if (metadata.type === 'leave' && metadata.target) {
+      const { username, accountname } = metadata.target;
+      return (
+        <>
+          <UserNameLink onClick={() => navigate(`/profile/${accountname}`)}>{username}</UserNameLink>
+          님이 채팅방을 나갔습니다.
+        </>
+      );
+    }
+
+    if (metadata.type === 'invite' && metadata.inviter && metadata.invited) {
+      const nodes = [];
+      const { username: invName, accountname: invAcc } = metadata.inviter;
+
+      nodes.push(
+        <UserNameLink key="inviter" onClick={() => navigate(`/profile/${invAcc}`)}>
+          {invName}
+        </UserNameLink>,
+      );
+      nodes.push('님이 ');
+
+      metadata.invited.forEach((target, idx) => {
+        const { username: tarName, accountname: tarAcc } = target;
+        nodes.push(
+          <UserNameLink key={`invited-${idx}`} onClick={() => navigate(`/profile/${tarAcc}`)}>
+            {tarName}
+          </UserNameLink>,
+        );
+        if (idx < metadata.invited.length - 1) nodes.push(', ');
+      });
+
+      nodes.push('님을 초대했습니다.');
+      return nodes;
+    }
+
+    return text;
+  };
+
+  if (msg.senderId === 'system') {
+    return (
+      <MessageItemContainer data-message-id={msg.id} $isSearchActive={isSearchActive}>
+        {showDateDivider && (
+          <DateDivider>
+            <DateDividerText>{formatMsgDate(msg.createdAt)}</DateDividerText>
+          </DateDivider>
+        )}
+        <SystemMessage>
+          <SystemMessageText>{renderSystemText()}</SystemMessageText>
+        </SystemMessage>
+      </MessageItemContainer>
+    );
+  }
+
   return (
     <MessageItemContainer data-message-id={msg.id} $isSearchActive={isSearchActive}>
       {showDateDivider && (
@@ -285,7 +370,7 @@ const ChatMessageItem = ({
         <MessageRow $isMine={isMine}>
           {!isMine && (
             <Avatar
-              src={chatInfo?.participantInfo?.[msg.senderId]?.image}
+              src={chatInfo?.participantInfo?.[msg.senderId]?.image || ''}
               alt="상대방"
               size="32px"
               onClick={() => navigate(`/profile/${msg.senderId}`)}
@@ -294,9 +379,16 @@ const ChatMessageItem = ({
           {!isMine ? (
             <BubbleColumn>
               {showName && (
-                <SenderName>
+                <SenderName
+                  $clickable={canOpenSenderProfile}
+                  onClick={() => {
+                    if (!canOpenSenderProfile) return;
+                    navigate(`/profile/${msg.senderId}`);
+                  }}
+                >
                   {chatInfo?.nicknames?.[user?.accountname]?.[msg.senderId] ||
-                    chatInfo?.participantInfo?.[msg.senderId]?.username}
+                    chatInfo?.participantInfo?.[msg.senderId]?.username ||
+                    '(알 수 없음)'}
                 </SenderName>
               )}
               <BubbleRow>
