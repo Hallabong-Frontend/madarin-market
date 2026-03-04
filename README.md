@@ -1,4 +1,4 @@
-# 🍊 Mandarin Market (감귤마켓)
+# Mandarin Market (감귤마켓)
 
 <p align="center">
 <img width="900" src="https://capsule-render.vercel.app/api?type=waving&color=FFB74D&height=220&section=header&text=Mandarin%20Market&fontSize=50&fontColor=ffffff"/>
