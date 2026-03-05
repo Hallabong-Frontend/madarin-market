@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { updateMyProfile, uploadImage, checkAccountValid } from '../../api/auth';
@@ -62,14 +62,21 @@ const SuccessText = styled.p`
   color: ${({ theme }) => theme.colors.success};
 `;
 
+const InfoText = styled.p`
+  font-size: ${({ theme }) => theme.fonts.size.xs};
+  color: ${({ theme }) => theme.colors.gray400};
+`;
+
 const ImageIcon = () => <ImageIconSvg width="18" height="18" />;
 
 const EditProfile = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   const fileRef = useRef(null);
+  const accountCheckSeqRef = useRef(0);
 
   const [accountValid, setAccountValid] = useState(true);
+  const [isCheckingAccount, setIsCheckingAccount] = useState(false);
   const [previewImage, setPreviewImage] = useState(
     getImageUrl(user?.image) || 'https://dev.wenivops.co.kr/services/mandarin/Ellipse.png',
   );
@@ -101,7 +108,7 @@ const EditProfile = () => {
       accountname: (value) => {
         if (!value || value === user?.accountname) return '';
         if (!validateAccountname(value)) {
-          return '영문, 숫자, 밑줄, 마침표만 사용 가능합니다.';
+          return '영문, 숫자, 특수문자(.,_)만 사용할 수 있습니다.';
         }
         return '';
       },
@@ -111,17 +118,50 @@ const EditProfile = () => {
       values.accountname !== user?.accountname ||
       values.intro !== user?.intro ||
       !!imageFile,
-    getIsValid: ({ values, errors }) =>
+    getIsValid: ({ values, errors: formErrors }) =>
       values.username.length >= 2 &&
       values.username.length <= 10 &&
-      (values.accountname === user?.accountname || accountValid) &&
-      !errors.username &&
-      !errors.accountname &&
+      (values.accountname === user?.accountname || validateAccountname(values.accountname)) &&
+      !formErrors.username &&
+      !formErrors.accountname &&
       (values.username !== user?.username ||
         values.accountname !== user?.accountname ||
         values.intro !== user?.intro ||
         !!imageFile),
   });
+
+  const checkAccountAvailability = useCallback(
+    async (accountname, options = {}) => {
+      const { showChecking = true } = options;
+      const seq = ++accountCheckSeqRef.current;
+      if (showChecking) setIsCheckingAccount(true);
+
+      try {
+        const data = await checkAccountValid(accountname);
+        if (seq !== accountCheckSeqRef.current) return false;
+
+        if (data?.message?.includes('사용 가능')) {
+          setFieldError('accountname', '');
+          setAccountValid(true);
+          return true;
+        }
+
+        setFieldError('accountname', data?.message || '이미 사용 중인 계정ID입니다.');
+        setAccountValid(false);
+        return false;
+      } catch (err) {
+        if (seq !== accountCheckSeqRef.current) return false;
+        setFieldError('accountname', err.response?.data?.message || '이미 사용 중인 계정ID입니다.');
+        setAccountValid(false);
+        return false;
+      } finally {
+        if (showChecking && seq === accountCheckSeqRef.current) {
+          setIsCheckingAccount(false);
+        }
+      }
+    },
+    [setFieldError],
+  );
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -131,8 +171,17 @@ const EditProfile = () => {
     if (value === user?.accountname) {
       setAccountValid(true);
       setFieldError('accountname', '');
+      setIsCheckingAccount(false);
       return;
     }
+
+    if (value && !validateAccountname(value)) {
+      setFieldError('accountname', '영문, 숫자, 특수문자(.,_)만 사용할 수 있습니다.');
+      setIsCheckingAccount(false);
+    } else {
+      setFieldError('accountname', '');
+    }
+
     setAccountValid(false);
   };
 
@@ -143,20 +192,26 @@ const EditProfile = () => {
       return;
     }
 
-    try {
-      const data = await checkAccountValid(form.accountname);
-      if (data.message === '사용 가능한 계정ID 입니다.') {
-        setFieldError('accountname', '');
-        setAccountValid(true);
-      } else {
-        setFieldError('accountname', data.message);
-        setAccountValid(false);
-      }
-    } catch (err) {
-      setFieldError('accountname', err.response?.data?.message || '이미 사용 중인 계정ID입니다.');
-      setAccountValid(false);
-    }
+    await checkAccountAvailability(form.accountname);
   };
+
+  useEffect(() => {
+    if (!form.accountname || form.accountname === user?.accountname) {
+      setIsCheckingAccount(false);
+      return;
+    }
+
+    if (!validateAccountname(form.accountname)) {
+      setIsCheckingAccount(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      checkAccountAvailability(form.accountname);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [form.accountname, user?.accountname, checkAccountAvailability]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -169,7 +224,15 @@ const EditProfile = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!isValid || isLoading) return;
+    if (!isValid || isLoading || isCheckingAccount) return;
+
+    if (!validateField('username')) return;
+
+    if (form.accountname !== user?.accountname) {
+      if (!validateField('accountname')) return;
+      const available = await checkAccountAvailability(form.accountname, { showChecking: false });
+      if (!available) return;
+    }
 
     setIsLoading(true);
     try {
@@ -197,7 +260,7 @@ const EditProfile = () => {
       });
 
       updateUser(data.user);
-      navigate(-1);
+      navigate(`/profile/${data.user.accountname}`, { replace: true });
     } catch (error) {
       console.error(error);
     } finally {
@@ -207,7 +270,11 @@ const EditProfile = () => {
 
   return (
     <Wrapper>
-      <Header type="back-title-save" saveDisabled={!isValid || isLoading} onSave={handleSave} />
+      <Header
+        type="back-title-save"
+        saveDisabled={!isValid || isLoading || isCheckingAccount}
+        onSave={handleSave}
+      />
 
       <Content>
         <AvatarWrapper>
@@ -251,7 +318,10 @@ const EditProfile = () => {
               errorText={errors.accountname}
               placeholder="영문, 숫자, 특수문자(.,_)만 사용 가능합니다."
             />
-            {accountValid && form.accountname !== user?.accountname && !errors.accountname && (
+            {isCheckingAccount && form.accountname !== user?.accountname && !errors.accountname && (
+              <InfoText>계정ID 확인 중...</InfoText>
+            )}
+            {accountValid && form.accountname !== user?.accountname && !errors.accountname && !isCheckingAccount && (
               <SuccessText>사용 가능한 계정ID입니다.</SuccessText>
             )}
           </InputGroup>
@@ -263,7 +333,7 @@ const EditProfile = () => {
             name="intro"
             value={form.intro}
             onChange={handleFormChange}
-            placeholder="자신과 판매할 상품에 대해 소개해 주세요!"
+            placeholder="자신과 판매할 상품에 대해 소개해 주세요."
           />
         </Form>
       </Content>
@@ -271,4 +341,6 @@ const EditProfile = () => {
   );
 };
 
+export { EditProfile };
 export default EditProfile;
+
