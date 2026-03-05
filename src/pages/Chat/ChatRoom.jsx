@@ -288,6 +288,13 @@ const ChatRoom = () => {
     }
   }, [chatId, user?.accountname]);
 
+  // 실시간 구독 결과가 40개 미만이면 더 이상 이전 메시지가 없음
+  useEffect(() => {
+    if (realtimeMessages.length > 0 && realtimeMessages.length < 40 && olderMessages.length === 0) {
+      setHasMore(false);
+    }
+  }, [realtimeMessages, olderMessages]);
+
   // 렌더링에 사용할 메시지 목록: 이전 메시지 + 실시간 메시지 (중복 제거)
   const displayMessages = useMemo(() => {
     const ids = new Set();

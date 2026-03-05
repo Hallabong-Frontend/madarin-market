@@ -412,7 +412,11 @@ const ChatMessageItem = ({
                     onContextMenu={(e) => onContextMenu(e, msg, isMine)}
                   />
                 ) : msg.imageUrl ? (
-                  <ChatImage src={msg.imageUrl} alt="채팅 이미지" />
+                  <ChatImage
+                    src={msg.imageUrl}
+                    alt="채팅 이미지"
+                    onContextMenu={(e) => onContextMenu(e, msg, isMine)}
+                  />
                 ) : (
                   <Bubble
                     $isMine={isMine}
@@ -444,7 +448,11 @@ const ChatMessageItem = ({
               onContextMenu={(e) => onContextMenu(e, msg, isMine)}
             />
           ) : msg.imageUrl ? (
-            <ChatImage src={msg.imageUrl} alt="채팅 이미지" />
+            <ChatImage
+              src={msg.imageUrl}
+              alt="채팅 이미지"
+              onContextMenu={(e) => onContextMenu(e, msg, isMine)}
+            />
           ) : editingId === msg.id ? (
             <EditWrapper>
               <EditInput
