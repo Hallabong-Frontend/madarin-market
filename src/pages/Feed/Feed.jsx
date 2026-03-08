@@ -29,6 +29,13 @@ const SearchButton = styled.button`
 /* 빈 피드 상태용 연한 감귤 로고 */
 const EmptyLogo = () => <EmptyLogoSvg width="100" height="100" />;
 
+/**
+ * 피드 페이지 컴포넌트
+ * 팔로우한 유저의 게시글 목록을 불러와 표시한다.
+ * 게시글이 없으면 검색 유도 빈 상태를 보여준다.
+ *
+ * @returns {JSX.Element}
+ */
 const Feed = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -38,6 +45,12 @@ const Feed = () => {
   const [showHeaderModal, setShowHeaderModal] = useState(false);
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
+  /**
+   * 피드 게시글 목록을 API에서 불러온다.
+   * 실패 시 토스트 에러를 표시한다.
+   *
+   * @returns {Promise<void>}
+   */
   const loadPosts = useCallback(async () => {
     try {
       const data = await getFeedPosts();
@@ -54,6 +67,11 @@ const Feed = () => {
     loadPosts();
   }, [loadPosts]);
 
+  /**
+   * 게시글 삭제 후 목록에서 제거하는 콜백
+   *
+   * @param {string} postId - 삭제된 게시글 ID
+   */
   const handleDelete = (postId) => {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
   };
@@ -63,6 +81,9 @@ const Feed = () => {
     { label: '로그아웃', danger: true, onClick: () => setShowLogoutAlert(true) },
   ];
 
+  /**
+   * 로그아웃 처리 후 로그인 페이지로 이동한다.
+   */
   const handleLogout = () => {
     logout();
     navigate('/login', { replace: true });
