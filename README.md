@@ -17,8 +17,8 @@
 SNS형 피드 + 상품거래 + 실시간 채팅을 결합한 **모바일 퍼스트 웹 앱**입니다.
 게시글/상품 CRUD, 팔로우/검색, 그리고 **Firebase Firestore 기반 채팅(1:1/그룹/리액션/핀/테마)**을 제공합니다.
 
-> **Design**: Mobile-first / max-width 390px  
-> **API Base**: `https://dev.wenivops.co.kr/services/mandarin`  
+> **Design**: Mobile-first / max-width 390px
+> **API Base**: `https://dev.wenivops.co.kr/services/mandarin`
 > **AI Proxy**: `https://dev.wenivops.co.kr/services/openai-api`
 
 ---
