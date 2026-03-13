@@ -14,12 +14,48 @@
 ![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?logo=firebase&logoColor=black)
 ![Axios](https://img.shields.io/badge/Axios-1.13-5A29E4?logo=axios&logoColor=white)
 
-SNS형 피드 + 중고거래 + 실시간 채팅을 결합한 **모바일 퍼스트 웹 앱**입니다.  
+SNS형 피드 + 중고거래 + 실시간 채팅을 결합한 **모바일 퍼스트 웹 앱**입니다.
 게시글/상품 CRUD, 팔로우/검색, 그리고 **Firebase Firestore 기반 채팅(1:1/그룹/리액션/핀/테마)**을 제공합니다.
 
-> **Design**: Mobile-first / max-width 390px  
-> **API Base**: `https://dev.wenivops.co.kr/services/mandarin`  
+> **Design**: Mobile-first / max-width 390px
+> **API Base**: `https://dev.wenivops.co.kr/services/mandarin`
 > **AI Proxy**: `https://dev.wenivops.co.kr/services/openai-api`
+
+---
+
+## 프로젝트 소개
+
+### 서비스명
+
+**감귤마켓 (Mandarin Market)**
+
+제주도의 감귤처럼 따뜻하고 신선한 거래와 소통을 지향합니다.
+
+### 타겟 사용자
+
+- 중고 물품을 거래하면서 판매자와 **직접 소통**하고 싶은 사용자
+- 커뮤니티 피드를 통해 일상을 공유하며 **관심사 기반 팔로우**를 원하는 사용자
+- 별도 메신저 앱 없이 **거래 채팅과 그룹 소통**을 한 곳에서 해결하고 싶은 사용자
+
+---
+
+## 기획 배경 & 문제 정의
+
+### 불편했던 점
+
+기존 중고거래 서비스는 **거래 기능**에만 집중되어 있어, 다음과 같은 불편함이 있었습니다.
+
+- **소통의 단절**: 판매 게시글을 올려도 관심을 표현하거나 커뮤니티로 이어지는 연결 고리가 없었습니다.
+- **앱 전환 피로**: 거래 문의는 중고거래 앱에서, 일상 공유는 SNS에서, 실시간 소통은 메신저에서 — 여러 앱을 오가야 했습니다.
+- **신뢰 형성의 어려움**: 판매자의 게시글·팔로워 등 맥락 정보 없이 상품만 보고 거래를 결정해야 했습니다.
+
+### 그래서 만들었습니다
+
+감귤마켓은 **SNS 피드 + 중고거래 + 실시간 채팅**을 하나의 서비스로 통합합니다.
+
+- 팔로우 기반 피드로 **판매자를 사람으로서 알아가고**
+- 게시글에 상품을 연결해 **자연스럽게 거래로 이어지며**
+- 1:1·그룹 채팅으로 **거래와 소통을 한 앱에서** 해결합니다.
 
 ---
 
